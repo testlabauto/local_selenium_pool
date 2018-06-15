@@ -3,3 +3,4 @@ venv/
 chromedriver
 geckodriver
 geckodriver.log
+.pytest_cache/

@@ -1,13 +1,5 @@
 from setuptools import setup
 
-
-# To install the library, run the following
-#
-# python setup.py install
-#
-# prerequisite: setuptools
-# http://pypi.python.org/pypi/setuptools
-
 EXTRAS = {}
 REQUIRES = []
 with open('requirements.txt') as f:
@@ -25,21 +17,19 @@ with open('test-requirements.txt') as f:
     TESTS_REQUIRES = f.readlines()
 
 setup(
-    name="selenium_gevent",
+    name="local_selenium_pool",
     version="1.0",
-    description="Concurrent selenium with gevent",
-    author_email="",
+    description="Concurrent local selenium execution using multiprocessing",
+    author_email="chris@testlabauto.com",
     author="Test Lab Automation",
     license="Apache License Version 2.0",
-    url="https://github.com/testlabauto/selenium-gevent",
-    keywords=["Swagger", "OpenAPI", "Kubernetes"],
+    url="https://github.com/testlabauto/local_selenium_pool",
+    keywords=["Selenium", "Parallel", "Concurrent"],
     install_requires=REQUIRES,
     tests_require=TESTS_REQUIRES,
     extras_require=EXTRAS,
-    packages=['kubernetes', 'kubernetes.client', 'kubernetes.config',
-              'kubernetes.watch', 'kubernetes.client.apis',
-              'kubernetes.stream', 'kubernetes.client.models'],
-    include_package_data=True,
+    packages=[],
+    include_package_data=False,
     long_description="""\
     Python library for concurrent selenium testing
     """,

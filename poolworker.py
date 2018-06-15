@@ -1,6 +1,5 @@
-from multiprocessing import Process, Pool, JoinableQueue, cpu_count
-
-import csv
+from multiprocessing import Process, Pool, cpu_count
+from queue import Empty
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
@@ -10,7 +9,7 @@ class SeleniumWorker(Process):
     def __init__(self, queue):
         super(SeleniumWorker, self).__init__()
         self.queue = queue
-        self.daemon = True
+        #self.daemon = True
         self.driver = None
         self.results = None
 
@@ -54,53 +53,28 @@ class SeleniumWorker(Process):
         self.create_driver()
 
         while True:
-            job = self.queue.get()
+            try:
+                job = self.queue.get(timeout=5)
+            except Empty:
+                self.driver.quit()
+                return
             func = job[0]
             args, kwargs = self.extract_args(job)
             self.execute_job(func, args, kwargs)
 
-
-# can use this:
-#    def get_url(driver, url, *args, **kwargs):
-# or:
-#    def get_url(driver, url):
-# or:
-#    def get_url(driver, url, a, b, **kwargs):
-# or:
-#     def get_url(driver, url, *args):
-
-def get_url(driver, results, url, *args, **kwargs):
+    def terminate(self):
+        self.driver.quit()
+        return super(SeleniumWorker, self).terminate()
 
 
-    print('getting url {}'.format(url))
-    driver.get(url)
+def create_pool(queue):
 
-
-
-def get_data():
-    with open('misc.csv', 'r') as f:
-        reader = csv.reader(f)
-        your_list = list(reader)
-    urls = [x[0] for x in your_list]
-    return urls
-
-if __name__ == "__main__":
-    urls = get_data()
-
-    url_queue = JoinableQueue()
-    workers=[]
+    workers = []
     for i in range(cpu_count()):
-        workers.append(SeleniumWorker(url_queue).start())
+        workers.append(SeleniumWorker(queue).start())
 
     pool = Pool()
 
-    for url in urls:
-        url_queue.put((get_url, url))
-
-    print('done putting')
-
-    url_queue.join()
-
-
+    return pool
 
 
