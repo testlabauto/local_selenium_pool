@@ -1,0 +1,5 @@
+venv/
+.idea/
+chromedriver
+geckodriver
+geckodriver.log
