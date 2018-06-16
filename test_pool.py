@@ -1,47 +1,115 @@
-from poolworker import create_pool
+from poolworker import create_pool, wait_for_pool_completion
 from multiprocessing import JoinableQueue
-import csv
+import sys
 
+from queue import Empty
 
-
-# can use this:
-#    def get_url(driver, url, *args, **kwargs):
-# or:
-#    def get_url(driver, url):
-# or:
-#    def get_url(driver, url, a, b, **kwargs):
-# or:
-#     def get_url(driver, url, *args):
-
-def get_url(driver, results, url, *args, **kwargs):
-
-
-    print('getting url {}'.format(url))
+def get_url(driver, queue):
+    sys.stdout = queue
+    sys.stderr = queue
+    url = 'http://ogp.me/ns#'
+    print('getting url 1 {}'.format(url))
     driver.get(url)
 
 
+def get_url2(driver, queue):
+    sys.stdout = queue
+    sys.stderr = queue
+    url = 'https://www.martijnaslander.nl/xmlrpc.php'
+    print('getting url 1 {}'.format(url))
+    print(driver.get(url))
 
-def get_data():
-    with open('test/random_urls.csv', 'r') as f:
-        reader = csv.reader(f)
-        your_list = list(reader)
-    urls = [x[0] for x in your_list]
-    return urls
+
+def get_url3(driver, queue):
+    sys.stdout = queue
+    sys.stderr = queue
+    url = 'http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic'
+    print('getting url 1 {}'.format(url))
+    print(driver.get(url))
+
+
+def get_url4(driver, queue):
+    sys.stdout = queue
+    sys.stderr = queue
+    url = 'https://www.martijnaslander.nl/a-list-of-urls/'
+    print('getting url 1 {}'.format(url))
+    print(driver.get(url))
+
+
+def get_url5(driver, queue):
+    sys.stdout = queue
+    sys.stderr = queue
+    url = 'https://yoast.com/wordpress/plugins/seo/'
+    print('getting url 1 {}'.format(url))
+    print(driver.get(url))
+
+
+def get_url6(driver, queue):
+    sys.stdout = queue
+    sys.stderr = queue
+    url = 'https://www.martijnaslander.nl/a-list-of-urls/'
+    print('getting url 1 {}'.format(url))
+    print(driver.get(url))
+
+
+def get_url7(driver, queue):
+    sys.stdout = queue
+    sys.stderr = queue
+    url = 'https://www.martijnaslander.nl/a-list-of-urls/'
+    print('getting url 1 {}'.format(url))
+    print(driver.get(url))
+
+
+def get_url8(driver, queue):
+    sys.stdout = queue
+    sys.stderr = queue
+    url = 'https://www.facebook.com/martijnaslander'
+    print('getting url 1 {}'.format(url))
+    print(driver.get(url))
+
+
+def get_url9(driver, queue):
+    sys.stdout = queue
+    sys.stderr = queue
+    url = 'https://www.martijnaslander.nl/wp-content/plugins/gravityforms/css/formreset.min.css?ver=2.2.6.5'
+    print('getting url 1 {}'.format(url))
+    print(driver.get(url))
+
+
+def queue_get_all(q):
+    items = []
+    maxItemsToRetreive = 10000
+    for numOfItemsRetrieved in range(0, maxItemsToRetreive):
+        try:
+            if numOfItemsRetrieved == maxItemsToRetreive:
+                break
+            items.append(q.get_nowait())
+        except Empty:
+            break
+    return items
+
 
 if __name__ == "__main__":
-    urls = get_data()
+    input_queue = JoinableQueue()
 
-    url_queue = JoinableQueue()
-    pool = create_pool(url_queue)
+    output_queue = create_pool(input_queue)
 
-    for url in urls:
-        url_queue.put((get_url, url))
+    input_queue.put((get_url))
+    input_queue.put((get_url2))
+    input_queue.put((get_url3))
+    input_queue.put((get_url4))
+    input_queue.put((get_url5))
+    input_queue.put((get_url6))
+    input_queue.put((get_url7))
+    input_queue.put((get_url8))
+    input_queue.put((get_url9))
 
-    print('done putting')
+    wait_for_pool_completion(input_queue)
 
-    url_queue.join()
+    print(output_queue.flush())
+    print(queue_get_all(output_queue))
 
-    print('here')
+
 
 
 
