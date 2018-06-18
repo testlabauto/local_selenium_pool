@@ -1,5 +1,6 @@
 from multiprocessing import Process, cpu_count, get_context
 from multiprocessing.queues import Queue
+from multiprocessing import current_process
 from queue import Empty
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -18,6 +19,7 @@ class StdoutQueue(Queue):
 
     def flush(self):
         sys.__stdout__.flush()
+
 
 
 class SeleniumWorker(Process):
@@ -49,11 +51,11 @@ class SeleniumWorker(Process):
         try:
             self.driver.delete_all_cookies()
             if len(args) > 0 and len(kwargs) > 0:
-                func(self.driver, self.output_queue, *args, **kwargs)
+                func(*args, driver=self.driver, output_queue=self.output_queue, **kwargs)
             elif len(args) > 0 and len(kwargs) == 0:
-                func(self.driver, self.output_queue, *args)
+                func(driver=self.driver, output_queue=self.output_queue, **kwargs)
             elif len(args) == 0 and len(kwargs) == 0:
-                func(self.driver, self.output_queue)
+                func(driver=self.driver, output_queue=self.output_queue)
             print(self.ident)
 
         except AssertionError as e:

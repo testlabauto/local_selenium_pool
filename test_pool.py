@@ -1,16 +1,17 @@
-from poolworker import create_pool, wait_for_pool_completion
+from poolworker import create_pool, wait_for_pool_completion, StdoutQueue
 from multiprocessing import JoinableQueue
 import sys
 
 import time
+from queue import Empty
+
+from pprint import pprint
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 
-
-from queue import Empty
 
 def body(driver, subject):
     driver.get("http://automationpractice.com/")
@@ -77,9 +78,11 @@ def body2(driver):
     return price.text
 
 
-def get_url(driver, queue):
-    sys.stdout = queue
-    sys.stderr = queue
+def get_url(**kwargs):
+    driver = kwargs.pop('driver')
+    q = kwargs.pop('output_queue')
+    sys.stdout = q
+    sys.stderr = q
     n = body(driver, "dress")
     print('dress {}'.format(n))
     #assert n == 7
@@ -90,9 +93,11 @@ def get_url(driver, queue):
     assert '$197.38' == m, "msg 2"
 
 
-def get_url2(driver, queue):
-    sys.stdout = queue
-    sys.stderr = queue
+def get_url2(**kwargs):
+    driver = kwargs.pop('driver')
+    q = kwargs.pop('output_queue')
+    sys.stdout = q
+    sys.stderr = q
     n = body(driver, "chiffon")
     print('chiffon {}'.format(n))
     assert n == 2
@@ -101,9 +106,11 @@ def get_url2(driver, queue):
     assert '$48.90' == m
 
 
-def get_url3(driver, queue):
-    sys.stdout = queue
-    sys.stderr = queue
+def get_url3(**kwargs):
+    driver = kwargs.pop('driver')
+    q = kwargs.pop('output_queue')
+    sys.stdout = q
+    sys.stderr = q
     n = body(driver, "blouse")
     print('blouse {}'.format(n))
     assert n == 1
@@ -112,9 +119,11 @@ def get_url3(driver, queue):
     assert '$29.00' == m
 
 
-def get_url4(driver, queue):
-    sys.stdout = queue
-    sys.stderr = queue
+def get_url4(**kwargs):
+    driver = kwargs.pop('driver')
+    q = kwargs.pop('output_queue')
+    sys.stdout = q
+    sys.stderr = q
     n = body(driver, "printed")
     print('printed {}'.format(n))
     assert n == 5
@@ -123,9 +132,11 @@ def get_url4(driver, queue):
     assert '$154.87' == m
 
 
-def get_url5(driver, queue):
-    sys.stdout = queue
-    sys.stderr = queue
+def get_url5(**kwargs):
+    driver = kwargs.pop('driver')
+    q = kwargs.pop('output_queue')
+    sys.stdout = q
+    sys.stderr = q
     n = body(driver, "summer")
     print('summer {}'.format(n))
     assert n == 4
@@ -134,17 +145,21 @@ def get_url5(driver, queue):
     assert '$94.39' == m
 
 
-def get_url6(driver, queue):
-    sys.stdout = queue
-    sys.stderr = queue
+def get_url6(**kwargs):
+    driver = kwargs.pop('driver')
+    q = kwargs.pop('output_queue')
+    sys.stdout = q
+    sys.stderr = q
     n = body(driver, "popular")
     print('popular {}'.format(n))
     assert n == 0
 
 
-def get_url7(driver, queue):
-    sys.stdout = queue
-    sys.stderr = queue
+def get_url7(**kwargs):
+    driver = kwargs.pop('driver')
+    q = kwargs.pop('output_queue')
+    sys.stdout = q
+    sys.stderr = q
     n = body(driver, "faded")
     print('faded {}'.format(n))
     assert n == 1
@@ -153,9 +168,11 @@ def get_url7(driver, queue):
     assert '$18.51' == m
 
 
-def get_url8(driver, queue):
-    sys.stdout = queue
-    sys.stderr = queue
+def get_url8(**kwargs):
+    driver = kwargs.pop('driver')
+    q = kwargs.pop('output_queue')
+    sys.stdout = q
+    sys.stderr = q
     n = body(driver,  "straps")
     print('straps {}'.format(n))
     m = body2(driver)
@@ -164,9 +181,11 @@ def get_url8(driver, queue):
     assert '$47.38' == m
 
 
-def get_url9(driver, queue):
-    sys.stdout = queue
-    sys.stderr = queue
+def get_url9(**kwargs):
+    driver = kwargs.pop('driver')
+    q = kwargs.pop('output_queue')
+    sys.stdout = q
+    sys.stderr = q
     n = body(driver, "evening")
     print('evening {}'.format(n))
     assert n == 1
@@ -188,13 +207,14 @@ def queue_get_all(q):
     return items
 
 
+
 if __name__ == "__main__":
 
     start = time.time()
 
     input_queue = JoinableQueue()
 
-    output_queue = create_pool(input_queue, 8)
+    output_queue = create_pool(input_queue, 4)
 
     input_queue.put((get_url))
     input_queue.put((get_url2))
