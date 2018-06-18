@@ -3,9 +3,8 @@ from multiprocessing.queues import Queue
 from queue import Empty
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from multiprocessing import Pool
-import time
 import sys
+import logging
 
 
 class StdoutQueue(Queue):
@@ -13,8 +12,20 @@ class StdoutQueue(Queue):
         ctx = get_context()
         super(StdoutQueue, self).__init__(*args, **kwargs, ctx=ctx)
 
+        FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s %(message)s'
+        logging.basicConfig(format=FORMAT)
+
+        self.logger = logging.getLogger()
+
+
+
+
     def write(self, msg):
         self.put(msg)
+        self.logger.info(msg)
+        sys.__stdout__.write(msg)
+
+
 
     def flush(self):
         sys.__stdout__.flush()
@@ -53,7 +64,7 @@ class SeleniumWorker(Process):
                 func(self.driver, self.output_queue, *args)
             elif len(args) == 0 and len(kwargs) == 0:
                 func(self.driver, self.output_queue)
-            print(self.ident)
+            #print(self.ident)
         except Exception as e:
             print(e)
         finally:
@@ -65,7 +76,7 @@ class SeleniumWorker(Process):
 
         while True:
             try:
-                job = self.input_queue.get(timeout=3)
+                job = self.input_queue.get_nowait()
             except Empty:
                 self.driver.quit()
                 return
@@ -79,14 +90,18 @@ class SeleniumWorker(Process):
             self.execute_job(func, args, kwargs)
 
 
-def create_pool(input_queue):
+def create_pool(input_queue, worker_count=cpu_count()):
     output_queue = StdoutQueue()
-    Pool(processes=cpu_count(), initializer=SeleniumWorker(input_queue, output_queue).start(), initargs=(input_queue,))
+
+    workers = []
+    for i in range(worker_count):
+        workers.append(SeleniumWorker(input_queue, output_queue).start())
+
     return output_queue
 
 
 def wait_for_pool_completion(input_queue):
     input_queue.join()
-    time.sleep(5)
+
     print('done')
 
