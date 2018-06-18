@@ -4,7 +4,7 @@ from queue import Empty
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import sys
-import logging
+import traceback
 
 
 class StdoutQueue(Queue):
@@ -12,20 +12,9 @@ class StdoutQueue(Queue):
         ctx = get_context()
         super(StdoutQueue, self).__init__(*args, **kwargs, ctx=ctx)
 
-        FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s %(message)s'
-        logging.basicConfig(format=FORMAT)
-
-        self.logger = logging.getLogger()
-
-
-
-
     def write(self, msg):
         self.put(msg)
-        self.logger.info(msg)
         sys.__stdout__.write(msg)
-
-
 
     def flush(self):
         sys.__stdout__.flush()
@@ -58,14 +47,24 @@ class SeleniumWorker(Process):
 
     def execute_job(self, func, args, kwargs):
         try:
+            self.driver.delete_all_cookies()
             if len(args) > 0 and len(kwargs) > 0:
                 func(self.driver, self.output_queue, *args, **kwargs)
             elif len(args) > 0 and len(kwargs) == 0:
                 func(self.driver, self.output_queue, *args)
             elif len(args) == 0 and len(kwargs) == 0:
                 func(self.driver, self.output_queue)
-            #print(self.ident)
+            print(self.ident)
+
+        except AssertionError as e:
+            _, _, tb = sys.exc_info()
+            traceback.print_tb(tb)  # Fixed format
+            tb_info = traceback.extract_tb(tb)
+            filename, line, func, text = tb_info[-1]
+
+            print('An error occurred on line {} in statement {}'.format(line, text))
         except Exception as e:
+            print(type(e))
             print(e)
         finally:
             self.input_queue.task_done()

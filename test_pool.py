@@ -12,17 +12,16 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 from queue import Empty
 
-def body(driver, queue, subject):
-    sys.stdout = queue
-    sys.stderr = queue
+def body(driver, subject):
     driver.get("http://automationpractice.com/")
     input_element = driver.find_element_by_name("search_query")
     input_element.send_keys(subject)
     input_element.submit()
 
-    time.sleep(1)
+    pic = 'product-image-container'
+    time.sleep(2)
 
-    image_containers = driver.find_elements_by_class_name('product-image-container')
+    image_containers = driver.find_elements_by_class_name(pic)
     images = []
     for container in image_containers:
         images.extend(container.find_elements_by_class_name('replace-2x'))
@@ -36,8 +35,7 @@ def body(driver, queue, subject):
         hover.perform()
 
         add_to_cart = 'ajax_add_to_cart_button'
-
-        time.sleep(1)
+        time.sleep(2)
 
         add_to_cart = driver.find_elements(By.CLASS_NAME, add_to_cart)[counter]
         counter += 1
@@ -58,59 +56,123 @@ def body(driver, queue, subject):
 
     return cart_added
 
+def body2(driver):
+    cart_block = driver.find_elements_by_xpath('//*[@title="View my shopping cart"]')[0]
 
+    hover = ActionChains(driver).move_to_element(cart_block)
+    hover.perform()
+
+    boc = 'button_order_cart'
+    WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.ID, boc)))
+
+    button_order_cart = driver.find_element(By.ID, boc)
+    button_order_cart.click()
+
+    total = 'total_price'
+    WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.ID, total)))
+
+    price = driver.find_element(By.ID, total)
+    return price.text
 
 
 def get_url(driver, queue):
-    n = body(driver, queue, "dress")
+    sys.stdout = queue
+    sys.stderr = queue
+    n = body(driver, "dress")
     print('dress {}'.format(n))
-    assert n == 7
+    #assert n == 7
+    assert n == 6, "msg 1"
+    m = body2(driver)
+    print('dress {}'.format(m))
+    #assert '$198.38' == m
+    assert '$197.38' == m, "msg 2"
 
 
 def get_url2(driver, queue):
-    n = body(driver, queue, "chiffon")
+    sys.stdout = queue
+    sys.stderr = queue
+    n = body(driver, "chiffon")
     print('chiffon {}'.format(n))
     assert n == 2
+    m = body2(driver)
+    print('chiffon {}'.format(m))
+    assert '$48.90' == m
 
 
 def get_url3(driver, queue):
-    n = body(driver, queue, "blouse")
+    sys.stdout = queue
+    sys.stderr = queue
+    n = body(driver, "blouse")
     print('blouse {}'.format(n))
     assert n == 1
+    m = body2(driver)
+    print('blouse {}'.format(m))
+    assert '$29.00' == m
 
 
 def get_url4(driver, queue):
-    n = body(driver, queue, "printed")
+    sys.stdout = queue
+    sys.stderr = queue
+    n = body(driver, "printed")
     print('printed {}'.format(n))
     assert n == 5
+    m = body2(driver)
+    print('printed {}'.format(m))
+    assert '$154.87' == m
 
 
 def get_url5(driver, queue):
-    n = body(driver, queue, "summer")
+    sys.stdout = queue
+    sys.stderr = queue
+    n = body(driver, "summer")
     print('summer {}'.format(n))
     assert n == 4
+    m = body2(driver)
+    print('summer {}'.format(m))
+    assert '$94.39' == m
 
 
 def get_url6(driver, queue):
-    n = body(driver, queue, "popular")
+    sys.stdout = queue
+    sys.stderr = queue
+    n = body(driver, "popular")
     print('popular {}'.format(n))
     assert n == 0
 
 
 def get_url7(driver, queue):
-    n = body(driver, queue, "faded")
+    sys.stdout = queue
+    sys.stderr = queue
+    n = body(driver, "faded")
     print('faded {}'.format(n))
     assert n == 1
+    m = body2(driver)
+    print('faded {}'.format(m))
+    assert '$18.51' == m
 
 
 def get_url8(driver, queue):
-    n = body(driver, queue, "straps")
+    sys.stdout = queue
+    sys.stderr = queue
+    n = body(driver,  "straps")
     print('straps {}'.format(n))
+    m = body2(driver)
+    assert n == 2
+    print('straps {}'.format(m))
+    assert '$47.38' == m
 
 
 def get_url9(driver, queue):
-    n = body(driver, queue, "evening")
+    sys.stdout = queue
+    sys.stderr = queue
+    n = body(driver, "evening")
     print('evening {}'.format(n))
+    assert n == 1
+    m = body2(driver)
+    print('evening {}'.format(m))
+    assert '$52.99' == m
 
 
 def queue_get_all(q):
@@ -132,7 +194,7 @@ if __name__ == "__main__":
 
     input_queue = JoinableQueue()
 
-    output_queue = create_pool(input_queue, 1)
+    output_queue = create_pool(input_queue, 8)
 
     input_queue.put((get_url))
     input_queue.put((get_url2))
