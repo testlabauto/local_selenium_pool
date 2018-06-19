@@ -1,5 +1,6 @@
-from poolworker import create_pool, wait_for_pool_completion, StdoutQueue
-from multiprocessing import JoinableQueue
+from poolworker import create_pool, wait_for_pool_completion
+from multiprocessing_on_dill.queues import JoinableQueue
+import multiprocessing_on_dill as multiprocessing
 import sys
 
 import time
@@ -57,6 +58,7 @@ def body(driver, subject):
 
     return cart_added
 
+
 def body2(driver):
     cart_block = driver.find_elements_by_xpath('//*[@title="View my shopping cart"]')[0]
 
@@ -78,11 +80,19 @@ def body2(driver):
     return price.text
 
 
+def fixture_decorator(test_function):
+
+    def wrapper(**kwargs):
+        q = kwargs.pop('output_queue')
+        sys.stdout = q
+        sys.stderr = q
+        test_function(**kwargs)
+
+    return wrapper
+
+@fixture_decorator
 def get_url(**kwargs):
     driver = kwargs.pop('driver')
-    q = kwargs.pop('output_queue')
-    sys.stdout = q
-    sys.stderr = q
     n = body(driver, "dress")
     print('dress {}'.format(n))
     #assert n == 7
@@ -92,12 +102,9 @@ def get_url(**kwargs):
     #assert '$198.38' == m
     assert '$197.38' == m, "msg 2"
 
-
+@fixture_decorator
 def get_url2(**kwargs):
     driver = kwargs.pop('driver')
-    q = kwargs.pop('output_queue')
-    sys.stdout = q
-    sys.stderr = q
     n = body(driver, "chiffon")
     print('chiffon {}'.format(n))
     assert n == 2
@@ -105,12 +112,9 @@ def get_url2(**kwargs):
     print('chiffon {}'.format(m))
     assert '$48.90' == m
 
-
+@fixture_decorator
 def get_url3(**kwargs):
     driver = kwargs.pop('driver')
-    q = kwargs.pop('output_queue')
-    sys.stdout = q
-    sys.stderr = q
     n = body(driver, "blouse")
     print('blouse {}'.format(n))
     assert n == 1
@@ -118,12 +122,9 @@ def get_url3(**kwargs):
     print('blouse {}'.format(m))
     assert '$29.00' == m
 
-
+@fixture_decorator
 def get_url4(**kwargs):
     driver = kwargs.pop('driver')
-    q = kwargs.pop('output_queue')
-    sys.stdout = q
-    sys.stderr = q
     n = body(driver, "printed")
     print('printed {}'.format(n))
     assert n == 5
@@ -131,12 +132,9 @@ def get_url4(**kwargs):
     print('printed {}'.format(m))
     assert '$154.87' == m
 
-
+@fixture_decorator
 def get_url5(**kwargs):
     driver = kwargs.pop('driver')
-    q = kwargs.pop('output_queue')
-    sys.stdout = q
-    sys.stderr = q
     n = body(driver, "summer")
     print('summer {}'.format(n))
     assert n == 4
@@ -144,22 +142,16 @@ def get_url5(**kwargs):
     print('summer {}'.format(m))
     assert '$94.39' == m
 
-
+@fixture_decorator
 def get_url6(**kwargs):
     driver = kwargs.pop('driver')
-    q = kwargs.pop('output_queue')
-    sys.stdout = q
-    sys.stderr = q
     n = body(driver, "popular")
     print('popular {}'.format(n))
     assert n == 0
 
-
+@fixture_decorator
 def get_url7(**kwargs):
     driver = kwargs.pop('driver')
-    q = kwargs.pop('output_queue')
-    sys.stdout = q
-    sys.stderr = q
     n = body(driver, "faded")
     print('faded {}'.format(n))
     assert n == 1
@@ -168,11 +160,9 @@ def get_url7(**kwargs):
     assert '$18.51' == m
 
 
+@fixture_decorator
 def get_url8(**kwargs):
     driver = kwargs.pop('driver')
-    q = kwargs.pop('output_queue')
-    sys.stdout = q
-    sys.stderr = q
     n = body(driver,  "straps")
     print('straps {}'.format(n))
     m = body2(driver)
@@ -180,12 +170,9 @@ def get_url8(**kwargs):
     print('straps {}'.format(m))
     assert '$47.38' == m
 
-
+@fixture_decorator
 def get_url9(**kwargs):
     driver = kwargs.pop('driver')
-    q = kwargs.pop('output_queue')
-    sys.stdout = q
-    sys.stderr = q
     n = body(driver, "evening")
     print('evening {}'.format(n))
     assert n == 1
@@ -212,9 +199,10 @@ if __name__ == "__main__":
 
     start = time.time()
 
-    input_queue = JoinableQueue()
+    ctx = multiprocessing.get_context()
+    input_queue = JoinableQueue(ctx=ctx)
 
-    output_queue = create_pool(input_queue, 4)
+    output_queue = create_pool(input_queue, 8)
 
     input_queue.put((get_url))
     input_queue.put((get_url2))

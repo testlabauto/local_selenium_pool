@@ -1,6 +1,8 @@
-from multiprocessing import Process, cpu_count, get_context
-from multiprocessing.queues import Queue
-from multiprocessing import current_process
+
+import multiprocessing_on_dill as multiprocessing
+import multiprocessing_on_dill.queues as queues
+
+
 from queue import Empty
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -8,13 +10,14 @@ import sys
 import traceback
 
 
-class StdoutQueue(Queue):
+class StdoutQueue(queues.Queue):
     def __init__(self, *args, **kwargs):
-        ctx = get_context()
+        ctx = multiprocessing.get_context()
         super(StdoutQueue, self).__init__(*args, **kwargs, ctx=ctx)
 
     def write(self, msg):
-        self.put(msg)
+        mmsg = 'Process {}: {}'.format(multiprocessing.current_process().ident, msg)
+        self.put(mmsg)
         sys.__stdout__.write(msg)
 
     def flush(self):
@@ -22,7 +25,7 @@ class StdoutQueue(Queue):
 
 
 
-class SeleniumWorker(Process):
+class SeleniumWorker(multiprocessing.Process):
 
     def __init__(self, input_queue, output_queue):
         super(SeleniumWorker, self).__init__()
@@ -91,7 +94,7 @@ class SeleniumWorker(Process):
             self.execute_job(func, args, kwargs)
 
 
-def create_pool(input_queue, worker_count=cpu_count()):
+def create_pool(input_queue, worker_count=multiprocessing.cpu_count()):
     output_queue = StdoutQueue()
 
     workers = []
