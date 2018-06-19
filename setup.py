@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 EXTRAS = {}
 REQUIRES = []
@@ -25,7 +25,7 @@ setup(
     keywords=["Selenium", "Parallel", "Concurrent"],
     install_requires=REQUIRES,
     extras_require=EXTRAS,
-    packages=['seleniumpool'],
+    packages=find_packages(),
     zip_safe=False,
     long_description="""\
     Python library for concurrent selenium testing
