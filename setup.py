@@ -28,8 +28,7 @@ setup(
     install_requires=REQUIRES,
     tests_require=TESTS_REQUIRES,
     extras_require=EXTRAS,
-    packages=['seleniumpool.decorator', 'seleniumpool.output_parser', 'seleniumpool.output_queue', 'seleniumpool.pool',
-              'seleniumpool.selenium_worker', 'seleniumpool.test_case'],
+    packages=['seleniumpool'],
     include_package_data=False,
     long_description="""\
     Python library for concurrent selenium testing
