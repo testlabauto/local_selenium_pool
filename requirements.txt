@@ -1,4 +1,4 @@
 selenium
 attr
 setuptools
-mulitprocessing_on_dill
+multiprocessing_on_dill
