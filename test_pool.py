@@ -149,6 +149,8 @@ def get_url7(**kwargs):
     print('faded {}'.format(m))
     assert '$18.51' == m
 
+    print (1/0)
+
 
 @fixture_decorator
 def get_url8(**kwargs):
@@ -210,9 +212,9 @@ if __name__ == "__main__":
     wait_for_pool_completion(input_queue)
 
     output_queue.flush()
-    for key, value in queue_get_all(output_queue).items():
-        print('\nProcess {0}:'.format(key))
-        print(value)
+    for okey, ovalue in queue_get_all(output_queue).items():
+        print('\nProcess {0}:'.format(okey))
+        print(ovalue)
 
     end = time.time()
     print(end - start)
