@@ -1,4 +1,5 @@
-from poolworker import create_pool, wait_for_pool_completion, fixture_decorator, get_parsed_ouput
+from seleniumpool.pool import create_pool, wait_for_pool_completion, get_parsed_ouput
+from seleniumpool.decorator import fixture_decorator
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC

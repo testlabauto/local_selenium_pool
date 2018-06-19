@@ -1,13 +1,14 @@
-from poolworker import TestOutputParser
+from seleniumpool.output_parser import TestOutputParser
+import time
 
 sample_out ='''Process 8538:
 
 Starting get_url
 dress 7
 [assertfail]Traceback (most recent call last):
-  File "/Users/cmead/local_selenium_pool/poolworker.py", line 175, in execute_job
+  File "/Users/cmead/local_selenium_pool/pool.py", line 175, in execute_job
     output_queue=self.output_queue)
-  File "/Users/cmead/local_selenium_pool/poolworker.py", line 127, in wrapper
+  File "/Users/cmead/local_selenium_pool/pool.py", line 127, in wrapper
     test_function(**kwargs)
   File "/Users/cmead/local_selenium_pool/test_pool.py", line 88, in get_url
     assert n == 6, "msg 1"
@@ -31,9 +32,9 @@ Starting get_url7
 faded 1
 faded $18.51
 [error]Traceback (most recent call last):
-  File "/Users/cmead/local_selenium_pool/poolworker.py", line 175, in execute_job
+  File "/Users/cmead/local_selenium_pool/pool.py", line 175, in execute_job
     output_queue=self.output_queue)
-  File "/Users/cmead/local_selenium_pool/poolworker.py", line 127, in wrapper
+  File "/Users/cmead/local_selenium_pool/pool.py", line 127, in wrapper
     test_function(**kwargs)
   File "/Users/cmead/local_selenium_pool/test_pool.py", line 152, in get_url7
     print (1/0)
@@ -65,6 +66,7 @@ Finished get_url5
 
 
 if __name__ == "__main__":
+
     parser = TestOutputParser()
-    parsed = parser.parse(sample_out)
+    parsed = parser.parse(time.time(), sample_out, 'test')
     print(parsed)
