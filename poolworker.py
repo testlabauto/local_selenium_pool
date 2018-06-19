@@ -1,14 +1,12 @@
+import json
+import multiprocessing_on_dill as multiprocessing
 import multiprocessing_on_dill.queues as queues
 from multiprocessing_on_dill.queues import JoinableQueue
-import multiprocessing_on_dill as multiprocessing
-
 from queue import Empty
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import sys
-import json
 import traceback
-import inspect
 
 class TestCase(object):
     def __init__(self, function, passed, process_id):
@@ -113,7 +111,7 @@ class TestOutputParser(object):
             testcases_json.append(case.__dict__)
             if hasattr(case, 'assertion') and case.assertion is not None:
                 failed += 1
-            elif hasattr(case, 'assertion') and case.error is not None:
+            elif hasattr(case, 'error') and case.error is not None:
                 errors += 1
             else:
                 passed += 1
@@ -133,15 +131,16 @@ class StdoutQueue(queues.Queue):
         super(StdoutQueue, self).__init__(*args, **kwargs, ctx=ctx)
 
     def write(self, msg):
-        curframe = inspect.currentframe()
-        calframe = inspect.getouterframes(curframe, 2)
-        caller = calframe[1][3]
         if msg == '\n':
             return
         process_ident = multiprocessing.current_process().ident
         entry = (process_ident, msg.strip('\n'))
         self.put(entry)
-        # sys.__stdout__.write('{0}\n'.format(msg))
+        sys.__stdout__.write('Process {0}: {1}\n'.format(process_ident, msg.
+                                            replace('[assertfail]','').
+                                            replace('[error]', '').
+                                            replace('[endassertfail]','').
+                                            replace('[enderror]', '')))
 
     def flush(self):
         sys.__stdout__.flush()
@@ -249,3 +248,36 @@ def wait_for_pool_completion(input_queue):
     input_queue.join()
 
     print('done')
+
+
+def queue_get_all(q):
+    items = {}
+    maxItemsToRetreive = 10000
+    for numOfItemsRetrieved in range(0, maxItemsToRetreive):
+        try:
+            if numOfItemsRetrieved == maxItemsToRetreive:
+                break
+            new = q.get_nowait()
+            pid = new[0]
+            msg = new[1]
+            if pid not in items:
+                items[pid] = ''
+            old = items[pid]
+            new = '{0}\n{1}'.format(old, msg)
+            items[pid] = new
+        except Empty:
+            break
+    return items
+
+
+def get_parsed_ouput(output_queue):
+    output_queue.flush()
+    buffer = ''
+    for okey, ovalue in queue_get_all(output_queue).items():
+        buffer += ('\nProcess {0}:'.format(okey))
+        buffer += ovalue
+
+    parser = TestOutputParser()
+    parsed = parser.parse(buffer)
+
+    return parsed

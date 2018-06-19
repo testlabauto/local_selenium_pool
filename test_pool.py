@@ -1,14 +1,9 @@
-from poolworker import create_pool, wait_for_pool_completion, fixture_decorator
-
-
-import time
-from queue import Empty
-
-
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
+from poolworker import create_pool, wait_for_pool_completion, fixture_decorator, get_parsed_ouput
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+import time
 
 
 def body(driver, subject):
@@ -29,7 +24,6 @@ def body(driver, subject):
     counter = 0
     cart_added = 0
     for image in images:
-
 
         hover = ActionChains(driver).move_to_element(image)
         hover.perform()
@@ -78,9 +72,8 @@ def body2(driver):
     return price.text
 
 
-
 @fixture_decorator
-def get_url(**kwargs):
+def get_url1(**kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "dress")
     print('dress {}'.format(n))
@@ -90,6 +83,7 @@ def get_url(**kwargs):
     print('dress {}'.format(m))
     #assert '$198.38' == m
     assert '$197.38' == m, "msg 2"
+
 
 @fixture_decorator
 def get_url2(**kwargs):
@@ -102,6 +96,7 @@ def get_url2(**kwargs):
     assert '$48.90' == m
     assert kwargs.pop('test') == 2
 
+
 @fixture_decorator
 def get_url3(**kwargs):
     driver = kwargs.pop('driver')
@@ -111,6 +106,7 @@ def get_url3(**kwargs):
     m = body2(driver)
     print('blouse {}'.format(m))
     assert '$29.00' == m
+
 
 @fixture_decorator
 def get_url4(**kwargs):
@@ -122,6 +118,7 @@ def get_url4(**kwargs):
     print('printed {}'.format(m))
     assert '$154.87' == m
 
+
 @fixture_decorator
 def get_url5(**kwargs):
     driver = kwargs.pop('driver')
@@ -132,12 +129,14 @@ def get_url5(**kwargs):
     print('summer {}'.format(m))
     assert '$94.39' == m
 
+
 @fixture_decorator
 def get_url6(**kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "popular")
     print('popular {}'.format(n))
     assert n == 0
+
 
 @fixture_decorator
 def get_url7(**kwargs):
@@ -148,8 +147,7 @@ def get_url7(**kwargs):
     m = body2(driver)
     print('faded {}'.format(m))
     assert '$18.51' == m
-
-    print (1/0)
+    print(1/0)
 
 
 @fixture_decorator
@@ -162,6 +160,7 @@ def get_url8(**kwargs):
     print('straps {}'.format(m))
     assert '$47.38' == m
 
+
 @fixture_decorator
 def get_url9(**kwargs):
     driver = kwargs.pop('driver')
@@ -173,33 +172,12 @@ def get_url9(**kwargs):
     assert '$52.99' == m
 
 
-def queue_get_all(q):
-    items = {}
-    maxItemsToRetreive = 10000
-    for numOfItemsRetrieved in range(0, maxItemsToRetreive):
-        try:
-            if numOfItemsRetrieved == maxItemsToRetreive:
-                break
-            new = q.get_nowait()
-            pid = new[0]
-            msg = new[1]
-            if pid not in items:
-                items[pid] = ''
-            old = items[pid]
-            new = '{0}\n{1}'.format(old, msg)
-            items[pid] = new
-        except Empty:
-            break
-    return items
-
-
-
 if __name__ == "__main__":
 
     start = time.time()
-    input_queue, output_queue = create_pool(4)
+    input_queue, output_queue = create_pool(5)
 
-    input_queue.put((get_url))
+    input_queue.put((get_url1))
     input_queue.put((get_url2, {'test': 2}))
     input_queue.put((get_url3))
     input_queue.put((get_url4))
@@ -211,13 +189,12 @@ if __name__ == "__main__":
 
     wait_for_pool_completion(input_queue)
 
-    output_queue.flush()
-    for okey, ovalue in queue_get_all(output_queue).items():
-        print('\nProcess {0}:'.format(okey))
-        print(ovalue)
+    parsed = get_parsed_ouput(output_queue)
+    print(parsed)
 
     end = time.time()
-    print(end - start)
+    print('Seconds elapsed {}'.format(end - start))
+
 
 
 
