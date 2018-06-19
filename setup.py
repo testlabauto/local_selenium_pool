@@ -13,23 +13,19 @@ with open('requirements.txt') as f:
         else:
             REQUIRES.append(line)
 
-with open('test-requirements.txt') as f:
-    TESTS_REQUIRES = f.readlines()
 
 setup(
     name="local_selenium_pool",
     version="1.0",
-    description="Concurrent local selenium execution using multiprocessing",
+    description="Concurrent local selenium execution using multiprocessing_on_dill",
     author_email="chris@testlabauto.com",
     author="Test Lab Automation",
     license="Apache License Version 2.0",
     url="https://github.com/testlabauto/local_selenium_pool",
     keywords=["Selenium", "Parallel", "Concurrent"],
     install_requires=REQUIRES,
-    tests_require=TESTS_REQUIRES,
     extras_require=EXTRAS,
     packages=['seleniumpool'],
-    include_package_data=False,
     long_description="""\
     Python library for concurrent selenium testing
     """,
@@ -42,8 +38,6 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
     ],
 )
