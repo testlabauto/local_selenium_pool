@@ -174,8 +174,8 @@ def get_url9(**kwargs):
 
 if __name__ == "__main__":
 
-    start = time.time()
-    input_queue, output_queue = create_pool(5)
+
+    input_queue, output_queue = create_pool(processes=6)
 
     input_queue.put((get_url1))
     input_queue.put((get_url2, {'test': 2}))
@@ -189,11 +189,10 @@ if __name__ == "__main__":
 
     wait_for_pool_completion(input_queue)
 
-    parsed = get_parsed_ouput(output_queue)
+    parsed = get_parsed_ouput( output_queue=output_queue, name=__file__)
     print(parsed)
 
-    end = time.time()
-    print('Seconds elapsed {}'.format(end - start))
+
 
 
 

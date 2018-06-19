@@ -6,7 +6,12 @@ from queue import Empty
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import sys
+import time
 import traceback
+import socket
+
+
+start = None
 
 class TestCase(object):
     def __init__(self, function, passed, process_id):
@@ -25,7 +30,7 @@ class TestCase(object):
 
 
 class TestOutputParser(object):
-    def parse(self, outstring):
+    def parse(self, start, outstring, name):
         current_process = None
         current_function = None
         current_pass = False
@@ -116,13 +121,20 @@ class TestOutputParser(object):
             else:
                 passed += 1
 
-        tcs = {'tests': tests,
+        end = time.time()
+
+
+        suite = {'tests': tests,
                'passed': passed,
                'errors': errors,
                'failed': failed,
-               'testcase': [testcases_json]}
+               'testcase': [testcases_json],
+               'host': socket.gethostname(),
+               'duration': end - start}
+        if name is not None:
+            suite['name'] = name
 
-        return json.dumps(tcs, indent=4)
+        return json.dumps(suite, indent=4)
 
 
 class StdoutQueue(queues.Queue):
@@ -232,13 +244,16 @@ class SeleniumWorker(multiprocessing.Process):
             self.execute_job(func, args, kwargs)
 
 
-def create_pool(worker_count=multiprocessing.cpu_count()):
+def create_pool(processes=multiprocessing.cpu_count()):
+    global start
+    start = time.time()
+
     output_queue = StdoutQueue()
     ctx = multiprocessing.get_context()
     input_queue = JoinableQueue(ctx=ctx)
 
     workers = []
-    for i in range(worker_count):
+    for i in range(processes):
         workers.append(SeleniumWorker(input_queue, output_queue).start())
 
     return input_queue, output_queue
@@ -270,7 +285,8 @@ def queue_get_all(q):
     return items
 
 
-def get_parsed_ouput(output_queue):
+def get_parsed_ouput(output_queue, name=None):
+    global start
     output_queue.flush()
     buffer = ''
     for okey, ovalue in queue_get_all(output_queue).items():
@@ -278,6 +294,6 @@ def get_parsed_ouput(output_queue):
         buffer += ovalue
 
     parser = TestOutputParser()
-    parsed = parser.parse(buffer)
+    parsed = parser.parse(start, buffer, name)
 
     return parsed
