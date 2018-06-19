@@ -194,26 +194,21 @@ def queue_get_all(q):
 if __name__ == "__main__":
 
     start = time.time()
+    input_queue, output_queue = create_pool(4)
 
-
-
-    input_queue, output_queue = create_pool(2)
-
-    input_queue.put((get_url))
+    #input_queue.put((get_url))
     input_queue.put((get_url2, {'test': 2}))
-    input_queue.put((get_url3))
-    input_queue.put((get_url4))
-    input_queue.put((get_url5))
-    input_queue.put((get_url6))
-    input_queue.put((get_url7))
-    input_queue.put((get_url8))
-    input_queue.put((get_url9))
+    #input_queue.put((get_url3))
+    #input_queue.put((get_url4))
+    #input_queue.put((get_url5))
+    #input_queue.put((get_url6))
+    #input_queue.put((get_url7))
+    #input_queue.put((get_url8))
+    #input_queue.put((get_url9))
 
     wait_for_pool_completion(input_queue)
 
-    print(output_queue.flush())
-
-
+    output_queue.flush()
     for key, value in queue_get_all(output_queue).items():
         print('\nProcess {0}:'.format(key))
         print(value)

@@ -20,7 +20,7 @@ class StdoutQueue(queues.Queue):
         process_ident = multiprocessing.current_process().ident
         entry = (process_ident, msg.strip('\n'))
         self.put(entry)
-        #sys.__stdout__.write(msg)
+        #sys.__stdout__.write('{0}\n'.format(msg))
 
     def flush(self):
         sys.__stdout__.flush()
@@ -69,26 +69,18 @@ class SeleniumWorker(multiprocessing.Process):
             if len(args) > 0 and len(kwargs) > 0:
                 func(*args, driver=self.driver, output_queue=self.output_queue, **kwargs)
             elif len(args) > 0 and len(kwargs) == 0:
+                func(*args, driver=self.driver, output_queue=self.output_queue)
+            elif len(args) == 0 and len(kwargs) > 0:
                 func(driver=self.driver, output_queue=self.output_queue, **kwargs)
             elif len(args) == 0 and len(kwargs) == 0:
                 func(driver=self.driver, output_queue=self.output_queue)
             #print(self.ident)
 
         except AssertionError as e:
-            _, _, tb = sys.exc_info()
-            traceback.print_tb(tb)  # Fixed format
-            tb_info = traceback.extract_tb(tb)
-            filename, line, func, text = tb_info[-1]
-            print('An error occurred on line {} in statement {}'.format(line, text))
+            print(traceback.format_exc())
 
         except Exception as e:
-            print(type(e))
-            _, _, tb = sys.exc_info()
-            traceback.print_tb(tb)  # Fixed format
-            tb_info = traceback.extract_tb(tb)
-            filename, line, func, text = tb_info[-1]
-            print('An error occurred on line {} in statement {}'.format(line, text))
-
+            print(traceback.format_exc())
         finally:
             self.input_queue.task_done()
 
