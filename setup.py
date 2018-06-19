@@ -26,6 +26,7 @@ setup(
     install_requires=REQUIRES,
     extras_require=EXTRAS,
     packages=['seleniumpool'],
+    zip_safe=False,
     long_description="""\
     Python library for concurrent selenium testing
     """,
