@@ -1,4 +1,4 @@
 selenium
 attr
 setuptools
-mulitprocessing-on-dill
+mulitprocessing_on_dill
