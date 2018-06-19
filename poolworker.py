@@ -1,7 +1,6 @@
-
-import multiprocessing_on_dill as multiprocessing
 import multiprocessing_on_dill.queues as queues
-
+from multiprocessing_on_dill.queues import JoinableQueue
+import multiprocessing_on_dill as multiprocessing
 
 from queue import Empty
 from selenium import webdriver
@@ -16,14 +15,28 @@ class StdoutQueue(queues.Queue):
         super(StdoutQueue, self).__init__(*args, **kwargs, ctx=ctx)
 
     def write(self, msg):
-        mmsg = 'Process {}: {}'.format(multiprocessing.current_process().ident, msg)
-        self.put(mmsg)
-        sys.__stdout__.write(msg)
+        if msg == '\n':
+            return
+        process_ident = multiprocessing.current_process().ident
+        entry = (process_ident, msg.strip('\n'))
+        self.put(entry)
+        #sys.__stdout__.write(msg)
 
     def flush(self):
         sys.__stdout__.flush()
 
 
+def fixture_decorator(test_function):
+
+    def wrapper(**kwargs):
+        q = kwargs.pop('output_queue')
+        sys.stdout = q
+        sys.stderr = q
+        print('Starting {0}'.format(test_function.__name__))
+        test_function(**kwargs)
+        print('Finished {0}'.format(test_function.__name__))
+
+    return wrapper
 
 class SeleniumWorker(multiprocessing.Process):
 
@@ -59,18 +72,23 @@ class SeleniumWorker(multiprocessing.Process):
                 func(driver=self.driver, output_queue=self.output_queue, **kwargs)
             elif len(args) == 0 and len(kwargs) == 0:
                 func(driver=self.driver, output_queue=self.output_queue)
-            print(self.ident)
+            #print(self.ident)
 
         except AssertionError as e:
             _, _, tb = sys.exc_info()
             traceback.print_tb(tb)  # Fixed format
             tb_info = traceback.extract_tb(tb)
             filename, line, func, text = tb_info[-1]
-
             print('An error occurred on line {} in statement {}'.format(line, text))
+
         except Exception as e:
             print(type(e))
-            print(e)
+            _, _, tb = sys.exc_info()
+            traceback.print_tb(tb)  # Fixed format
+            tb_info = traceback.extract_tb(tb)
+            filename, line, func, text = tb_info[-1]
+            print('An error occurred on line {} in statement {}'.format(line, text))
+
         finally:
             self.input_queue.task_done()
 
@@ -94,14 +112,17 @@ class SeleniumWorker(multiprocessing.Process):
             self.execute_job(func, args, kwargs)
 
 
-def create_pool(input_queue, worker_count=multiprocessing.cpu_count()):
+def create_pool(worker_count=multiprocessing.cpu_count()):
     output_queue = StdoutQueue()
+
+    ctx = multiprocessing.get_context()
+    input_queue = JoinableQueue(ctx=ctx)
 
     workers = []
     for i in range(worker_count):
         workers.append(SeleniumWorker(input_queue, output_queue).start())
 
-    return output_queue
+    return input_queue, output_queue
 
 
 def wait_for_pool_completion(input_queue):

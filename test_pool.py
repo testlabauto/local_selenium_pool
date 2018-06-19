@@ -1,12 +1,9 @@
-from poolworker import create_pool, wait_for_pool_completion
-from multiprocessing_on_dill.queues import JoinableQueue
-import multiprocessing_on_dill as multiprocessing
-import sys
+from poolworker import create_pool, wait_for_pool_completion, fixture_decorator
+
 
 import time
 from queue import Empty
 
-from pprint import pprint
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -16,6 +13,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 def body(driver, subject):
     driver.get("http://automationpractice.com/")
+    time.sleep(1)
     input_element = driver.find_element_by_name("search_query")
     input_element.send_keys(subject)
     input_element.submit()
@@ -80,15 +78,6 @@ def body2(driver):
     return price.text
 
 
-def fixture_decorator(test_function):
-
-    def wrapper(**kwargs):
-        q = kwargs.pop('output_queue')
-        sys.stdout = q
-        sys.stderr = q
-        test_function(**kwargs)
-
-    return wrapper
 
 @fixture_decorator
 def get_url(**kwargs):
@@ -182,13 +171,20 @@ def get_url9(**kwargs):
 
 
 def queue_get_all(q):
-    items = []
+    items = {}
     maxItemsToRetreive = 10000
     for numOfItemsRetrieved in range(0, maxItemsToRetreive):
         try:
             if numOfItemsRetrieved == maxItemsToRetreive:
                 break
-            items.append(q.get_nowait())
+            new = q.get_nowait()
+            pid = new[0]
+            msg = new[1]
+            if pid not in items:
+                items[pid] = ''
+            old = items[pid]
+            new = '{0}\n{1}'.format(old, msg)
+            items[pid] = new
         except Empty:
             break
     return items
@@ -199,13 +195,12 @@ if __name__ == "__main__":
 
     start = time.time()
 
-    ctx = multiprocessing.get_context()
-    input_queue = JoinableQueue(ctx=ctx)
 
-    output_queue = create_pool(input_queue, 8)
+
+    input_queue, output_queue = create_pool(2)
 
     input_queue.put((get_url))
-    input_queue.put((get_url2))
+    input_queue.put((get_url2, {'test': 2}))
     input_queue.put((get_url3))
     input_queue.put((get_url4))
     input_queue.put((get_url5))
@@ -217,7 +212,11 @@ if __name__ == "__main__":
     wait_for_pool_completion(input_queue)
 
     print(output_queue.flush())
-    print(queue_get_all(output_queue))
+
+
+    for key, value in queue_get_all(output_queue).items():
+        print('\nProcess {0}:'.format(key))
+        print(value)
 
     end = time.time()
     print(end - start)
