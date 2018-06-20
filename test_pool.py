@@ -1,5 +1,5 @@
 from seleniumpool.pool import create_pool, wait_for_pool_completion, get_parsed_ouput
-from seleniumpool.decorator import fixture_decorator
+from seleniumpool.decorator import sel_pool
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
@@ -74,21 +74,25 @@ def body2(driver):
     return price.text
 
 
-@fixture_decorator
-def get_url1(**kwargs):
+@sel_pool()
+def get_url1(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "dress")
     print('dress {}'.format(n))
     #assert n == 7
-    assert n == 6, "msg 1"
+    assert n == 6, "msg 1" # wrong on purpose
     m = body2(driver)
     print('dress {}'.format(m))
     #assert '$198.38' == m
-    assert '$197.38' == m, "msg 2"
+    assert '$197.38' == m, "msg 2" # wrong on purpose
 
 
-@fixture_decorator
-def get_url2(**kwargs):
+@sel_pool(7, test=2)
+def get_url2(*args, **kwargs):
+
+    seven = args[0]
+    assert 7 == seven
+
     driver = kwargs.pop('driver')
     n = body(driver, "chiffon")
     print('chiffon {}'.format(n))
@@ -99,8 +103,8 @@ def get_url2(**kwargs):
     assert kwargs.pop('test') == 2
 
 
-@fixture_decorator
-def get_url3(**kwargs):
+@sel_pool()
+def get_url3(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "blouse")
     print('blouse {}'.format(n))
@@ -110,8 +114,8 @@ def get_url3(**kwargs):
     assert '$29.00' == m
 
 
-@fixture_decorator
-def get_url4(**kwargs):
+@sel_pool()
+def get_url4(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "printed")
     print('printed {}'.format(n))
@@ -121,8 +125,8 @@ def get_url4(**kwargs):
     assert '$154.87' == m
 
 
-@fixture_decorator
-def get_url5(**kwargs):
+@sel_pool()
+def get_url5(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "summer")
     print('summer {}'.format(n))
@@ -132,16 +136,16 @@ def get_url5(**kwargs):
     assert '$94.39' == m
 
 
-@fixture_decorator
-def get_url6(**kwargs):
+@sel_pool()
+def get_url6(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "popular")
     print('popular {}'.format(n))
     assert n == 0
 
 
-@fixture_decorator
-def get_url7(**kwargs):
+@sel_pool()
+def get_url7(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "faded")
     print('faded {}'.format(n))
@@ -152,8 +156,8 @@ def get_url7(**kwargs):
     print(1/0)
 
 
-@fixture_decorator
-def get_url8(**kwargs):
+@sel_pool()
+def get_url8(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver,  "straps")
     print('straps {}'.format(n))
@@ -163,8 +167,8 @@ def get_url8(**kwargs):
     assert '$47.38' == m
 
 
-@fixture_decorator
-def get_url9(**kwargs):
+@sel_pool()
+def get_url9(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "evening")
     print('evening {}'.format(n))
@@ -181,15 +185,15 @@ if __name__ == "__main__":
 
     input_queue, output_queue = create_pool(chrome_options, processes=6)
 
-    input_queue.put((get_url1))
-    input_queue.put((get_url2, {'test': 2}))
-    input_queue.put((get_url3))
-    input_queue.put((get_url4))
-    input_queue.put((get_url5))
-    input_queue.put((get_url6))
-    input_queue.put((get_url7))
-    input_queue.put((get_url8))
-    input_queue.put((get_url9))
+    #input_queue.put((get_url1))
+    input_queue.put((get_url2))
+    #input_queue.put((get_url3))
+    #input_queue.put((get_url4))
+    #input_queue.put((get_url5))
+    #input_queue.put((get_url6))
+    #input_queue.put((get_url7))
+    #input_queue.put((get_url8))
+    #input_queue.put((get_url9))
 
     wait_for_pool_completion(input_queue)
 
