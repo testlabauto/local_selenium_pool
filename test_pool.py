@@ -1,5 +1,6 @@
 from seleniumpool.pool import create_pool, wait_for_pool_completion, get_parsed_ouput
 from seleniumpool.decorator import fixture_decorator
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -175,8 +176,10 @@ def get_url9(**kwargs):
 
 if __name__ == "__main__":
 
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
 
-    input_queue, output_queue = create_pool(processes=6)
+    input_queue, output_queue = create_pool(chrome_options, processes=6)
 
     input_queue.put((get_url1))
     input_queue.put((get_url2, {'test': 2}))

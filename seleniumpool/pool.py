@@ -9,7 +9,7 @@ import time
 
 start = None
 
-def create_pool(processes=multiprocessing.cpu_count()):
+def create_pool(chrome_options, processes=multiprocessing.cpu_count()):
     global start
     start = time.time()
 
@@ -19,7 +19,7 @@ def create_pool(processes=multiprocessing.cpu_count()):
 
     workers = []
     for i in range(processes):
-        workers.append(SeleniumWorker(input_queue, output_queue).start())
+        workers.append(SeleniumWorker(input_queue, output_queue, chrome_options).start())
 
     return input_queue, output_queue
 

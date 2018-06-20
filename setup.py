@@ -1,18 +1,5 @@
 from setuptools import setup, find_packages
 
-EXTRAS = {}
-REQUIRES = []
-with open('requirements.txt') as f:
-    for line in f:
-        line, _, _ = line.partition('#')
-        line = line.strip()
-        if ';' in line:
-            requirement, _, specifier = line.partition(';')
-            for_specifier = EXTRAS.setdefault(':{}'.format(specifier), [])
-            for_specifier.append(requirement)
-        else:
-            REQUIRES.append(line)
-
 
 setup(
     name="local_selenium_pool",
@@ -23,8 +10,7 @@ setup(
     license="Apache License Version 2.0",
     url="https://github.com/testlabauto/local_selenium_pool",
     keywords=["Selenium", "Parallel", "Concurrent"],
-    install_requires=REQUIRES,
-    extras_require=EXTRAS,
+    install_requires=['selenium', 'attr', 'setuptools', 'multiprocessing_on_dill'],
     packages=find_packages(),
     zip_safe=False,
     long_description="""\

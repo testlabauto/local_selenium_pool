@@ -1,21 +1,20 @@
 import multiprocessing_on_dill as multiprocessing
 from queue import Empty
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 import traceback
 
 class SeleniumWorker(multiprocessing.Process):
-    def __init__(self, input_queue, output_queue):
+    def __init__(self, input_queue, output_queue, chrome_options):
         super(SeleniumWorker, self).__init__()
         self.input_queue = input_queue
         self.output_queue = output_queue
         self.driver = None
+        self.chrome_options = chrome_options
 
     def create_driver(self):
         if self.driver is None:
-            chrome_options = Options()
-            chrome_options.add_argument("--headless")
-            self.driver = webdriver.Chrome(chrome_options=chrome_options)
+
+            self.driver = webdriver.Chrome(chrome_options=self.chrome_options)
 
     def extract_args(self, job):
         arg_count = len(job)
