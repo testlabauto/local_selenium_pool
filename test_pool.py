@@ -1,10 +1,11 @@
-from seleniumpool.pool import create_pool, wait_for_pool_completion, get_parsed_ouput
+from seleniumpool.pool import create_pool, wait_for_pool_completion, get_parsed_ouput, auto_fill_queue
 from seleniumpool.decorator import sel_pool
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+import sys
 import time
 
 
@@ -75,7 +76,7 @@ def body2(driver):
 
 
 @sel_pool()
-def get_url1(*args, **kwargs):
+def test_url1(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "dress")
     print('dress {}'.format(n))
@@ -84,11 +85,11 @@ def get_url1(*args, **kwargs):
     m = body2(driver)
     print('dress {}'.format(m))
     #assert '$198.38' == m
-    assert '$197.38' == m, "msg 2" # wrong on purpose
+    assert '$197.38' == m, 'found {}'.format(m) # wrong on purpose
 
 
 @sel_pool(7, test=2)
-def get_url2(*args, **kwargs):
+def test_url2(*args, **kwargs):
 
     seven = args[0]
     assert 7 == seven
@@ -99,45 +100,45 @@ def get_url2(*args, **kwargs):
     assert n == 2
     m = body2(driver)
     print('chiffon {}'.format(m))
-    assert '$48.90' == m
+    assert '$48.90' == m, 'found {}'.format(m)
     assert kwargs.pop('test') == 2
 
 
 @sel_pool()
-def get_url3(*args, **kwargs):
+def test_url3(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "blouse")
     print('blouse {}'.format(n))
     assert n == 1
     m = body2(driver)
     print('blouse {}'.format(m))
-    assert '$29.00' == m
+    assert '$29.00' == m, 'found {}'.format(m)
 
 
 @sel_pool()
-def get_url4(*args, **kwargs):
+def test_url4(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "printed")
     print('printed {}'.format(n))
     assert n == 5
     m = body2(driver)
     print('printed {}'.format(m))
-    assert '$154.87' == m
+    assert '$154.87' == m, 'found {}'.format(m)
 
 
 @sel_pool()
-def get_url5(*args, **kwargs):
+def test_url5(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "summer")
     print('summer {}'.format(n))
     assert n == 4
     m = body2(driver)
     print('summer {}'.format(m))
-    assert '$94.39' == m
+    assert '$94.39' == m, 'found {}'.format(m)
 
 
 @sel_pool()
-def get_url6(*args, **kwargs):
+def test_url6(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "popular")
     print('popular {}'.format(n))
@@ -145,37 +146,37 @@ def get_url6(*args, **kwargs):
 
 
 @sel_pool()
-def get_url7(*args, **kwargs):
+def test_url7(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "faded")
     print('faded {}'.format(n))
     assert n == 1
     m = body2(driver)
     print('faded {}'.format(m))
-    assert '$18.51' == m
+    assert '$18.51' == m, 'found {}'.format(m)
     print(1/0)
 
 
 @sel_pool()
-def get_url8(*args, **kwargs):
+def test_url8(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver,  "straps")
     print('straps {}'.format(n))
     m = body2(driver)
     assert n == 2
     print('straps {}'.format(m))
-    assert '$47.38' == m
+    assert '$47.38' == m, 'found {}'.format(m)
 
 
 @sel_pool()
-def get_url9(*args, **kwargs):
+def test_url9(*args, **kwargs):
     driver = kwargs.pop('driver')
     n = body(driver, "evening")
     print('evening {}'.format(n))
     assert n == 1
     m = body2(driver)
     print('evening {}'.format(m))
-    assert '$52.99' == m
+    assert '$52.99' == m, 'found {}'.format(m)
 
 
 if __name__ == "__main__":
@@ -185,15 +186,20 @@ if __name__ == "__main__":
 
     input_queue, output_queue = create_pool(chrome_options, processes=6)
 
-    #input_queue.put((get_url1))
-    input_queue.put((get_url2))
-    #input_queue.put((get_url3))
-    #input_queue.put((get_url4))
-    #input_queue.put((get_url5))
-    #input_queue.put((get_url6))
-    #input_queue.put((get_url7))
-    #input_queue.put((get_url8))
-    #input_queue.put((get_url9))
+    auto_fill = True
+    if auto_fill:
+        auto_fill_queue(sys.modules[__name__], input_queue)
+    else:
+
+        input_queue.put((test_url1))
+        input_queue.put((test_url2))
+        input_queue.put((test_url3))
+        input_queue.put((test_url4))
+        input_queue.put((test_url5))
+        input_queue.put((test_url6))
+        input_queue.put((test_url7))
+        input_queue.put((test_url8))
+        input_queue.put((test_url9))
 
     wait_for_pool_completion(input_queue)
 

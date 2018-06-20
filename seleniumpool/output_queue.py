@@ -3,10 +3,10 @@ import multiprocessing_on_dill.queues as queues
 import sys
 
 
-class StdoutQueue(queues.Queue):
+class OutputQueue(queues.Queue):
     def __init__(self, *args, **kwargs):
         ctx = multiprocessing.get_context()
-        super(StdoutQueue, self).__init__(*args, **kwargs, ctx=ctx)
+        super(OutputQueue, self).__init__(*args, **kwargs, ctx=ctx)
 
     def write(self, msg):
         if msg == '\n':

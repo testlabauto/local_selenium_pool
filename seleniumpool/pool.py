@@ -1,7 +1,7 @@
 import multiprocessing_on_dill as multiprocessing
 from multiprocessing_on_dill.queues import JoinableQueue
 from seleniumpool.output_parser import TestOutputParser
-from seleniumpool.output_queue import StdoutQueue
+from seleniumpool.output_queue import OutputQueue
 from seleniumpool.selenium_worker import SeleniumWorker
 from queue import Empty
 import time
@@ -13,7 +13,7 @@ def create_pool(chrome_options, processes=multiprocessing.cpu_count()):
     global start
     start = time.time()
 
-    output_queue = StdoutQueue()
+    output_queue = OutputQueue()
     ctx = multiprocessing.get_context()
     input_queue = JoinableQueue(ctx=ctx)
 
@@ -62,3 +62,14 @@ def get_parsed_ouput(output_queue, name=None):
     parsed = parser.parse(start, buffer, name)
 
     return parsed
+
+def auto_fill_queue(module, input_queue):
+    test_func_names = []
+    for x in dir(module):
+        if x.startswith('test_'):
+            test_func_names.append(x)
+    for test_func_name in test_func_names:
+        func = getattr(module, test_func_name)
+        if callable(func):
+            input_queue.put(func)
+
