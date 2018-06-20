@@ -1,0 +1,20 @@
+Metadata-Version: 1.1
+Name: local-selenium-pool
+Version: 0.0.1
+Summary: Concurrent local selenium execution using multiprocessing_on_dill
+Home-page: https://github.com/testlabauto/local_selenium_pool
+Author: Test Lab Automation
+Author-email: chris@testlabauto.com
+License: Apache License Version 2.0
+Description: UNKNOWN
+Keywords: Selenium,Local,Concurrent
+Platform: UNKNOWN
+Classifier: Development Status :: 1 - Beta
+Classifier: Topic :: Utilities
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6

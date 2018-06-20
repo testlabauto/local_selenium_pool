@@ -4,3 +4,5 @@ chromedriver
 geckodriver
 geckodriver.log
 .pytest_cache/
+selenium_pool/__pycache__/
+build/
