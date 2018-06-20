@@ -1,11 +1,15 @@
-from seleniumpool.pool import create_pool, wait_for_pool_completion, get_parsed_ouput, auto_fill_queue
+import json
+import os
+import socket
+import sys
+from seleniumpool.pool import create_pool, wait_for_pool_completion, get_parsed_ouput, auto_fill_queue, queue_get_all
 from seleniumpool.decorator import sel_pool
+from seleniumpool.test_case import TestCase
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-import sys
 import time
 
 
@@ -181,36 +185,130 @@ def test_url9(*args, **kwargs):
 
 if __name__ == "__main__":
 
+    start = time.time()
+
     chrome_options = Options()
     chrome_options.add_argument("--headless")
 
     input_queue, output_queue = create_pool(chrome_options, processes=6)
 
-    auto_fill = True
-    if auto_fill:
-        auto_fill_queue(sys.modules[__name__], input_queue)
-    else:
 
-        input_queue.put((test_url1))
-        input_queue.put((test_url2))
-        input_queue.put((test_url3))
-        input_queue.put((test_url4))
-        input_queue.put((test_url5))
-        input_queue.put((test_url6))
-        input_queue.put((test_url7))
-        input_queue.put((test_url8))
-        input_queue.put((test_url9))
+    #auto_fill_queue(sys.modules[__name__], input_queue)
+
+
+    input_queue.put((test_url1))
+    input_queue.put((test_url2))
+    input_queue.put((test_url3))
+    input_queue.put((test_url4))
+    input_queue.put((test_url5))
+    input_queue.put((test_url6))
+    input_queue.put((test_url7))
+    input_queue.put((test_url8))
+    input_queue.put((test_url9))
 
     wait_for_pool_completion(input_queue)
 
-    parsed = get_parsed_ouput( output_queue=output_queue, name=__file__)
-    print(parsed)
 
 
 
 
+    stdout = queue_get_all(output_queue.getStdOutQueue())
+    runs = []
+    lines = []
+    for key, value in stdout.items():
+        pid = key
+        for line in value.split('\n'):
+            parts = line.split(']')
+            ts = parts[0][1:]
+            msg = ']'.join(parts[1:])
+            if msg is not '':
+                lines.append((ts, msg))
+            if msg.startswith('Starting '):
+                func_name = msg.split()[1]
+            if msg.startswith('Finished'):
+                end_func_name = msg.split()[1]
+                assert func_name == end_func_name
+                runs.append((pid, func_name, lines))
+                lines = []
+
+    testcases = {}
+    for run in runs:
+        print('pid {}'.format(run[0]))
+        print('func_name {}'.format(run[1]))
+        print('lines {}'.format(run[2]))
+        tc = TestCase(function=run[1], process_id=run[0], stdout=[x[1] for x in run[2]])
+        testcases['{}-{}'.format(run[0], run[1])] = tc
 
 
+    errors = queue_get_all(output_queue.getErrorQueue())
+    print (errors)
+    error_lines = ''
+    for key, value in errors.items():
+        pid = key
 
+        parts = value.split(']')
+        ts = parts[0].lstrip()[1:]
+        msg_and_func = ']'.join(parts[1:])
+        if msg_and_func == '':
+            continue
+        parts2 = msg_and_func.split(']')
+        func_name = parts2[0][1:]
+        msg = ']'.join(parts2[1:])
+        if msg is not '':
+            error_lines = msg
+        tc_key = '{}-{}'.format(pid, func_name)
+        assert tc_key in testcases
+        testcases[tc_key].failed()
+        testcases[tc_key].add_error(error_lines)
+
+    assertions = queue_get_all(output_queue.getAssertionQueue())
+    print(assertions)
+    assertion_lines = ''
+    for key, value in assertions.items():
+        pid = key
+
+        parts = value.split(']')
+        ts = parts[0].lstrip()[1:]
+        msg_and_func = ']'.join(parts[1:])
+        if msg_and_func == '':
+            continue
+        parts2 = msg_and_func.split(']')
+        func_name = parts2[0][1:]
+        msg = ']'.join(parts2[1:])
+        if msg is not '':
+            assertion_lines = msg
+        tc_key = '{}-{}'.format(pid, func_name)
+        assert tc_key in testcases
+        testcases[tc_key].failed()
+        testcases[tc_key].add_assertion(assertion_lines)
+
+    testcases_json = []
+    passed = 0
+    failed = 0
+    errors = 0
+    tests = 0
+    for key, case in testcases.items():
+        tests += 1
+        testcases_json.append(case.__dict__)
+        if hasattr(case, 'assertion') and case.assertion is not None:
+            failed += 1
+        elif hasattr(case, 'error') and case.error is not None:
+            errors += 1
+        else:
+            passed += 1
+
+    end = time.time()
+
+    suite = {'tests': tests,
+             'passed': passed,
+             'errors': errors,
+             'failed': failed,
+             'testcase': [testcases_json],
+             'host': socket.gethostname(),
+             'duration': end - start}
+
+    suite['name'] = os.path.splitext(os.path.basename(__file__))[0]
+
+    print(json.dumps(suite, indent=4))
 
 

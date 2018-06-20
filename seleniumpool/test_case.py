@@ -1,14 +1,15 @@
 class TestCase(object):
-    def __init__(self, function, passed, process_id):
+    def __init__(self, function, process_id, stdout):
         self.function = function
-        self.passed = passed
         self.process_id = process_id
+        self.stdout = stdout
+        self.passed = True
 
+    def add_error(self, current_error):
+        self.error = current_error
 
-    def add_output(self, current_stdout, current_error, current_assertion):
-        if current_stdout is not '':
-            self.stdout = current_stdout.strip()
-        if current_assertion is not '':
-            self.assertion = current_assertion.strip()
-        if current_error is not '':
-            self.error = current_error.strip()
+    def add_assertion(self, current_assertion):
+        self.assertion = current_assertion
+
+    def failed(self):
+        self.passed = False

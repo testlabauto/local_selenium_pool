@@ -1,7 +1,8 @@
 import multiprocessing_on_dill as multiprocessing
 from multiprocessing_on_dill.queues import JoinableQueue
+from seleniumpool.decorator import sel_pool
 from seleniumpool.output_parser import TestOutputParser
-from seleniumpool.output_queue import OutputQueue
+from seleniumpool.output_queue import TestRunOutput
 from seleniumpool.selenium_worker import SeleniumWorker
 from queue import Empty
 import time
@@ -13,7 +14,7 @@ def create_pool(chrome_options, processes=multiprocessing.cpu_count()):
     global start
     start = time.time()
 
-    output_queue = OutputQueue()
+    output_queue = TestRunOutput()
     ctx = multiprocessing.get_context()
     input_queue = JoinableQueue(ctx=ctx)
 
@@ -38,12 +39,13 @@ def queue_get_all(q):
             if numOfItemsRetrieved == maxItemsToRetreive:
                 break
             new = q.get_nowait()
-            pid = new[0]
-            msg = new[1]
+            pid = new.pid
+            ts = new.timestamp
+            msg = new.msg
             if pid not in items:
                 items[pid] = ''
             old = items[pid]
-            new = '{0}\n{1}'.format(old, msg)
+            new = '{0}\n[{1}]{2}'.format(old, ts, msg)
             items[pid] = new
         except Empty:
             break
