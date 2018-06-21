@@ -1,7 +1,7 @@
 import datetime
 import json
-from loselpo.output_queue import queue_get_all
-from loselpo.test_case import TestCase
+from pyloselpo.output_queue import queue_get_all
+from pyloselpo.test_case import TestCase
 import socket
 import time
 

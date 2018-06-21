@@ -1,4 +1,4 @@
-# loselpo (local_selenium_pool)
+# pyloselpo (Python local Selenium pool)
 
 A local selenium pool for increased testing performance without requiring multiple hosts.    multiprocessing-on-dill is used to provide a configurable number of headless Chrome selenium webdriver instances on which to simultaneously run selenium tests.   Each instance reuses its _applicationCacheEnabled = False_ webdriver for multiple tests, erasing all cookies between tests.
 
@@ -24,7 +24,7 @@ After the pool of webdrivers has no remaining tests to execute, it creates a JSO
                     "Finished test_url1"
                 ],
                 "passed": false,
-                "assertion": "msg 1\nTraceback (most recent call last):\n  File \"/Users/cmead/local_selenium_pool/loselpo/selenium_worker.py\", line 58, in execute_job\n    output_queue=self.stdout_queue)\n  File \"/Users/cmead/local_selenium_pool/loselpo/decorator.py\", line 18, in decorated_function\n    f(*y, **z)\n  File \"/Users/cmead/local_selenium_pool/test_pool.py\", line 84, in test_url1\n    assert n == 6, \"msg 1\" # wrong on purpose\nAssertionError: msg 1\n"
+                "assertion": pyloselpo
             },
             {
                 "function": "test_url2",
@@ -50,7 +50,7 @@ After the pool of webdrivers has no remaining tests to execute, it creates a JSO
                     "Finished test_url7"
                 ],
                 "passed": false,
-                "error": "division by zero\nTraceback (most recent call last):\n  File \"/Users/cmead/local_selenium_pool/loselpo/selenium_worker.py\", line 58, in execute_job\n    output_queue=self.stdout_queue)\n  File \"/Users/cmead/local_selenium_pool/loselpo/decorator.py\", line 18, in decorated_function\n    f(*y, **z)\n  File \"/Users/cmead/local_selenium_pool/test_pool.py\", line 154, in test_url7\n    print(1/0)\nZeroDivisionError: division by zero\n"
+                "error": pyloselpo
             }
         ]
     ],
