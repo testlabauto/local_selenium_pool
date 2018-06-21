@@ -1,7 +1,9 @@
 import multiprocessing_on_dill as multiprocessing
 import multiprocessing_on_dill.queues as queues
+from queue import Empty
 import sys
 import time
+
 
 
 class TestRunOutput():
@@ -45,3 +47,24 @@ class OutputQueue(queues.Queue):
 
     def flush(self):
         sys.__stdout__.flush()
+
+
+def queue_get_all(q):
+    items = {}
+    maxItemsToRetreive = 10000
+    for numOfItemsRetrieved in range(0, maxItemsToRetreive):
+        try:
+            if numOfItemsRetrieved == maxItemsToRetreive:
+                break
+            new = q.get_nowait()
+            pid = new.pid
+            ts = new.timestamp
+            msg = new.msg
+            if pid not in items:
+                items[pid] = ''
+            old = items[pid]
+            new = '{0}\n[{1}]{2}'.format(old, ts, msg)
+            items[pid] = new
+        except Empty:
+            break
+    return items

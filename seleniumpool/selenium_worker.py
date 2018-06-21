@@ -56,7 +56,7 @@ class SeleniumWorker(multiprocessing.Process):
             old_stderr = sys.stderr
             sys.stdout = self.assertion_queue
             sys.stderr = self.assertion_queue
-            print('[{}]{}\n{}'.format(func.__name__, str(e), x))
+            print('[{}]\n{}\n{}'.format(func.__name__, str(e), x))
             sys.stdout = old_stdout
             sys.stderr = old_stderr
         except Exception as e:
@@ -66,7 +66,7 @@ class SeleniumWorker(multiprocessing.Process):
             old_stderr = sys.stderr
             sys.stdout = self.error_queue
             sys.stderr = self.error_queue
-            print('[{}]{}\n{}'.format(func.__name__, str(e), x))
+            print('[{}]\n{}\n{}'.format(func.__name__, str(e), x))
             sys.stdout = old_stdout
             sys.stderr = old_stderr
         finally:

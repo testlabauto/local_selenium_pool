@@ -1,92 +1,82 @@
 import json
-import time
-import socket
+from seleniumpool.output_queue import queue_get_all
 from seleniumpool.test_case import TestCase
+import socket
+import time
 
 
 class TestOutputParser(object):
-    def parse(self, start, outstring, name):
-        current_process = None
-        current_function = None
-        current_pass = False
-        current_stdout = ''
-        current_assertion = ''
-        current_error = ''
-        testcases = []
-        processing_assert = False
-        processing_error = False
-        for line in outstring.split('\n'):
-            if line.startswith('Process'):
-                if current_pass is None and current_function is not None:
-                    current_pass = False
-                    testcase = TestCase(current_function, current_pass, current_process)
-                    testcase.add_output(current_stdout, current_error, current_assertion)
-                    testcases.append(testcase)
-                current_process = line.split()[1].replace(':', '')
-                current_function = None
-                current_pass = None
-            elif current_process is not None and line.startswith('Starting'):
-                if current_pass is None and current_function is not None:
-                    current_pass = False
-                    testcase = TestCase(current_function, current_pass, current_process)
-                    testcase.add_output(current_stdout, current_error, current_assertion)
-                    testcases.append(testcase)
-                    current_pass = None
-                current_function = line.split()[1]
-                current_stdout = ''
-                current_assertion = ''
-                current_error = ''
-                processing_assert = False
-                processing_error = False
-            elif current_process is not None and current_function is not None:
-                if line.startswith('Finished'):
-                    current_pass = True
-                    testcase = TestCase(current_function, current_pass, current_process)
-                    testcase.add_output(current_stdout, current_error, current_assertion)
-                    testcases.append(testcase)
-                    current_function = None
-                    current_pass = None
-                    current_stdout = ''
-                    current_assertion = ''
-                    current_error = ''
+
+    def add_error_item_to_testcase(self, stderr_type, tc_key, testcases, lines):
+
+
+        assert tc_key in testcases
+        testcases[tc_key].failed()
+        if stderr_type == 'error':
+            testcases[tc_key].add_error(lines)
+        else:
+            testcases[tc_key].add_assertion(lines)
+
+    def process_stderr_component(self, stderr_type, queue, testcases):
+
+        items = queue_get_all(queue)
+        lines = ''
+        func_name = ''
+        for key, value in items.items():
+            pid = key
+            for line in value.split('\n'):
+                if line == '':
+                    continue
+                # get function name from line starting with marker [
+                if line.startswith('['):
+                    if func_name != '' and lines != '':
+                        tc_key = '{}-{}'.format(pid, func_name)
+                        self.add_error_item_to_testcase(stderr_type, tc_key, testcases, lines)
+                        lines = ''
+                    parts = line.split(']')
+                    no_timestamp = ']'.join(parts[1:])
+                    parts2 = no_timestamp.split(']')
+                    func_name = parts2[0][1:]
                 else:
-                    if '[assertfail]' in line:
-                        line = line.replace('[assertfail]', '')
-                        processing_assert = True
-                        processing_error = False
-                        current_assertion += line + '\n'
-                    elif '[error]' in line:
-                        line = line.replace('[error]', '')
-                        processing_assert = False
-                        processing_error = True
-                        current_error += line + '\n'
-                    else:
+                    lines += line + '\n'
 
-                        if processing_assert:
-                            if '[endassertfail]' in line:
-                                processing_assert = False
-                                line = line.replace('[endassertfail]', '')
-                            current_assertion += line + '\n'
-                        elif processing_error:
-                            if '[enderror]' in line:
-                                processing_error = False
-                                line = line.replace('[enderror]', '')
-                            current_error += line + '\n'
-                        else:
-                            current_stdout += line + '\n'
+            if func_name != '' and lines != '':
+                tc_key = '{}-{}'.format(pid, func_name)
+                self.add_error_item_to_testcase(stderr_type, tc_key, testcases, lines)
+    def parse(self, start, output_queue, name):
+        stdout = queue_get_all(output_queue.getStdOutQueue())
+        runs = []
+        lines = []
+        for key, value in stdout.items():
+            pid = key
+            for line in value.split('\n'):
+                parts = line.split(']')
+                ts = parts[0][1:]
+                msg = ']'.join(parts[1:])
+                if msg is not '':
+                    lines.append((ts, msg))
+                if msg.startswith('Starting '):
+                    func_name = msg.split()[1]
+                if msg.startswith('Finished'):
+                    end_func_name = msg.split()[1]
+                    assert func_name == end_func_name
+                    runs.append((pid, func_name, lines))
+                    lines = []
 
-        if current_pass is None and current_function is not None:
-            current_pass = False
-            testcase = TestCase(current_function, current_pass, current_process)
-            testcase.add_output(current_stdout, current_error, current_assertion)
-            testcases.append(testcase)
+        testcases = {}
+        for run in runs:
+            tc = TestCase(function=run[1], process_id=run[0], stdout=[x[1] for x in run[2]])
+            testcases['{}-{}'.format(run[0], run[1])] = tc
+
+        self.process_stderr_component('error', output_queue.getErrorQueue(), testcases)
+        self.process_stderr_component('assertion', output_queue.getAssertionQueue(), testcases)
 
         testcases_json = []
         passed = 0
         failed = 0
         errors = 0
         tests = 0
-        for case in testcases:
+        for key, case in testcases.items():
             tests += 1
             testcases_json.append(case.__dict__)
             if hasattr(case, 'assertion') and case.assertion is not None:
@@ -98,15 +88,7 @@ class TestOutputParser(object):
 
         end = time.time()
 
-
-        suite = {'tests': tests,
-               'passed': passed,
-               'errors': errors,
-               'failed': failed,
-               'testcase': [testcases_json],
-               'host': socket.gethostname(),
-               'duration': end - start}
-        if name is not None:
-            suite['name'] = name
+        suite = {'tests': tests, 'passed': passed, 'errors': errors, 'failed': failed, 'testcase': [testcases_json],
+                 'host': socket.gethostname(), 'duration': end - start, 'name': name}
 
         return json.dumps(suite, indent=4)

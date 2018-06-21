@@ -1,18 +1,19 @@
 import multiprocessing_on_dill as multiprocessing
 from multiprocessing_on_dill.queues import JoinableQueue
-from seleniumpool.decorator import sel_pool
 from seleniumpool.output_parser import TestOutputParser
 from seleniumpool.output_queue import TestRunOutput
 from seleniumpool.selenium_worker import SeleniumWorker
-from queue import Empty
 import time
 
 
 start = None
+output_queue = None
+name = None
 
-def create_pool(chrome_options, processes=multiprocessing.cpu_count()):
-    global start
+def create_pool(test_name, chrome_options, processes=multiprocessing.cpu_count()):
+    global start, output_queue, name
     start = time.time()
+    name = test_name
 
     output_queue = TestRunOutput()
     ctx = multiprocessing.get_context()
@@ -26,49 +27,16 @@ def create_pool(chrome_options, processes=multiprocessing.cpu_count()):
 
 
 def wait_for_pool_completion(input_queue):
+    global start, output_queue, name
     input_queue.join()
 
-    print('done')
+    return TestOutputParser().parse(start, output_queue, name)
 
 
-def queue_get_all(q):
-    items = {}
-    maxItemsToRetreive = 10000
-    for numOfItemsRetrieved in range(0, maxItemsToRetreive):
-        try:
-            if numOfItemsRetrieved == maxItemsToRetreive:
-                break
-            new = q.get_nowait()
-            pid = new.pid
-            ts = new.timestamp
-            msg = new.msg
-            if pid not in items:
-                items[pid] = ''
-            old = items[pid]
-            new = '{0}\n[{1}]{2}'.format(old, ts, msg)
-            items[pid] = new
-        except Empty:
-            break
-    return items
-
-
-def get_parsed_ouput(output_queue, name=None):
-    global start
-    output_queue.flush()
-    buffer = ''
-    for okey, ovalue in queue_get_all(output_queue).items():
-        buffer += ('\nProcess {0}:'.format(okey))
-        buffer += ovalue
-
-    parser = TestOutputParser()
-    parsed = parser.parse(start, buffer, name)
-
-    return parsed
-
-def auto_fill_queue(module, input_queue):
+def auto_fill_queue(module, input_queue, prefix='test_'):
     test_func_names = []
     for x in dir(module):
-        if x.startswith('test_'):
+        if x.startswith(prefix):
             test_func_names.append(x)
     for test_func_name in test_func_names:
         func = getattr(module, test_func_name)

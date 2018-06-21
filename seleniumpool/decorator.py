@@ -4,10 +4,10 @@ from functools import wraps
 
 
 
-def sel_pool(*decorator_args, **decorator_kwargs):  # the decorator
-    def wrapper(f):  # a wrapper for the function
+def sel_pool(*decorator_args, **decorator_kwargs):
+    def wrapper(f):
         @wraps(f)
-        def decorated_function(*args, **kwargs):  # the decorated function
+        def decorated_function(*args, **kwargs):
 
             out = kwargs.pop('output_queue')
             sys.stdout = out
