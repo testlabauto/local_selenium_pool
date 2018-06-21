@@ -8,7 +8,7 @@ This project includes a sample test that depends an awesome free resource called
 
 The sample test [test_pool.py](https://github.com/testlabauto/local_selenium_pool/blob/master/test_pool.py), has nine tests in it which each take , which can be executed with any number of processes reading from the same queue of tests.  Each test searches the site's products for a different keyword.  It then adds each item found to the cart, one at a time.  Finally, it goes to the checkout page and compares the expected total to the basket total.
 
-After the pool of webdrivers has no remaining tests to execute, it creates a JSON report in an XUnit style.  Stdout is stored as a list, while assertions and errors are stored as strings to preserve formatting.
+After the pool of webdrivers has no remaining tests to execute, it creates a JSON report in an XUnit style. 
 
 
 <details>
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     print(report)
 ```
 
-## The sample test cases
+## A portion of the sample test cases
 
 <details>
   <summary>Click to expand sample test case code</summary>
@@ -294,9 +294,9 @@ def test_url2(**kwargs):
 
 ## Debugging
 
-If using input_queue.put(), you will need to only add the test case you are debugging to the queue 
+When using input_queue.put(), you will need to only add the test case you are debugging to the queue 
 
-If using xxx, he prefix parmeter to auto_fill_queue can be used to 
+When using auto_fill_queue(), the prefix parmeter to auto_fill_queue can be changed to match a method whose name you also change.  This way all other tests won't be picked up and added to the queue.
 
 ## Built With
 
@@ -304,6 +304,7 @@ If using xxx, he prefix parmeter to auto_fill_queue can be used to
 * [Multiprocessing on Dill](https://pypi.org/project/multiprocessing_on_dill/) - A friendly fork of multiprocessing which uses dill instead of pickle
 * [attr](https://pypi.org/project/attr/) - Simple decorator to set attributes of target function or class in a DRY way.
 * [setuptools](https://pypi.org/project/setuptools/) - Easily download, build, install, upgrade, and uninstall Python packages
+
 
 ## Authors
 

@@ -66,7 +66,7 @@ class TestOutputParser(object):
 
         testcases = {}
         for run in runs:
-            tc = TestCase(function=run[1], process_id=run[0], stdout=[x[1] for x in run[2]])
+            tc = TestCase(function=run[1], process_id=run[0], stdout='\n'.join([x[1] for x in run[2]]))
             testcases['{}-{}'.format(run[0], run[1])] = tc
 
         self.process_stderr_component('error', output_queue.getErrorQueue(), testcases)
