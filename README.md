@@ -136,7 +136,7 @@ After the pool of webdrivers has no remaining tests to execute, it creates a JSO
 
 ### Use of Multiprocessing on Dill
 
-Multiprocessing is used as instead of multithreading and gevent in order to best isolate each selenium instance in a pool from the other instances.  Multiprocessing on Dill is used for compatibility with attr (avoid pickling errors when using decorators).
+Multiprocessing is used instead of multithreading or gevent in order to best isolate each selenium instance in a pool from the other instances.  Multiprocessing on Dill is used for compatibility with attr (to avoid pickling errors when using decorators).
 
 ## Getting Started
 
