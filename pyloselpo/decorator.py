@@ -2,8 +2,6 @@ import sys
 from functools import wraps
 
 
-
-
 def sel_pool(*decorator_args, **decorator_kwargs):
     def wrapper(f):
         @wraps(f)

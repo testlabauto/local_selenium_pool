@@ -1,5 +1,7 @@
 # pyloselpo (Python local Selenium pool)
 
+This documentation is in progress.
+
 A local selenium pool for increased testing performance without requiring multiple hosts.    multiprocessing-on-dill is used to provide a configurable number of Chrome webdriver instances on which to simultaneously run selenium tests.   Each instance reuses its _applicationCacheEnabled = False_ webdriver for multiple tests, erasing all cookies between tests.
 
 This project includes a sample test that depends an awesome free resource called [automationpractice.com](http://automationpractice.com/index.php) which is a full featured web store sandbox.  Much thanks to [StMarco89](https://github.com/StMarco89/automationpractice.com)!  
@@ -14,7 +16,7 @@ After the pool of webdrivers has no remaining tests to execute, it creates a JSO
   <p>
 <!-- the above p cannot start right at the beginning of the line and is mandatory for everything else to work -->
 
-```java
+```python
 {
     "tests": 9,
     "passed": 7,
@@ -132,6 +134,10 @@ After the pool of webdrivers has no remaining tests to execute, it creates a JSO
 </p></details>
 
 
+### Use of multiprocessing
+
+Multiprocessing is used as instead of multithreading and gevent in order to best isolate each selenium instance in a pool from the other instances.  Multiprocessing on Dill is used for compatibility with attr (avoid pickling errors when using decorators).
+
 ## Getting Started
 
 ### Prerequisites
@@ -153,9 +159,9 @@ I have only tested this on OS X so far, but welcome feedback from anyone working
 
 ## Running the sample test, test_pool.py
 * Run the script several times, varying the _processes_ parameter to create_pool().  The default, shown below, is 6.
+* Comment out the input_queue.put() lines and uncomment the auto_fill_queue() line.  These are the two alternative ways to add tests to the pool
 
 ```
-...
 if __name__ == "__main__":
 
     start = time.time()
@@ -184,6 +190,113 @@ if __name__ == "__main__":
 
     print(report)
 ```
+
+## The sample test cases
+
+<details>
+  <summary>Click to expand sample test case code</summary>
+  <p>
+<!-- the above p cannot start right at the beginning of the line and is mandatory for everything else to work -->
+
+```python
+
+def body(driver, subject):
+    driver.get("http://automationpractice.com/")
+    time.sleep(1)
+    input_element = driver.find_element_by_name("search_query")
+    input_element.send_keys(subject)
+    input_element.submit()
+
+    pic = 'product-image-container'
+    time.sleep(2)
+
+    image_containers = driver.find_elements_by_class_name(pic)
+    images = []
+    for container in image_containers:
+        images.extend(container.find_elements_by_class_name('replace-2x'))
+
+    counter = 0
+    cart_added = 0
+    for image in images:
+
+        hover = ActionChains(driver).move_to_element(image)
+        hover.perform()
+
+        add_to_cart = 'ajax_add_to_cart_button'
+        time.sleep(2)
+
+        add_to_cart = driver.find_elements(By.CLASS_NAME, add_to_cart)[counter]
+        counter += 1
+        try:
+            add_to_cart.click()
+
+            continue_shopping = 'continue'
+
+            WebDriverWait(driver, 10).until(
+                EC.visibility_of_element_located((By.CLASS_NAME, continue_shopping)))
+
+            continue_button = driver.find_element(By.CLASS_NAME, continue_shopping)
+
+            continue_button.click()
+            cart_added += 1
+        except Exception as e:
+            print(e)
+
+    return cart_added
+
+
+def body2(driver):
+    cart_block = driver.find_elements_by_xpath('//*[@title="View my shopping cart"]')[0]
+
+    hover = ActionChains(driver).move_to_element(cart_block)
+    hover.perform()
+
+    boc = 'button_order_cart'
+    WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.ID, boc)))
+
+    button_order_cart = driver.find_element(By.ID, boc)
+    button_order_cart.click()
+
+    total = 'total_price'
+    WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.ID, total)))
+
+    price = driver.find_element(By.ID, total)
+    return price.text
+
+
+@sel_pool()
+def test_url1(**kwargs):
+    driver = kwargs.pop('driver')
+    n = body(driver, "dress")
+    print('dress {}'.format(n))
+    #assert n == 7
+    assert n == 6, "msg 1" # wrong on purpose
+    m = body2(driver)
+    print('dress {}'.format(m))
+    #assert '$198.38' == m
+    assert '$197.38' == m, 'found {}'.format(m) # wrong on purpose
+
+
+@sel_pool()
+def test_url2(**kwargs):
+    assert kwargs.pop('test') == 2
+    driver = kwargs.pop('driver')
+    n = body(driver, "chiffon")
+    print('chiffon {}'.format(n))
+    assert n == 2
+    m = body2(driver)
+    print('chiffon {}'.format(m))
+    assert '$48.90' == m, 'found {}'.format(m)
+```
+</p></details>
+
+## Debugging
+
+If using input_queue.put(), you will need to only add the test case you are debugging to the queue 
+
+If using xxx, he prefix parmeter to auto_fill_queue can be used to 
 
 ## Built With
 

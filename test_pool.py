@@ -6,6 +6,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+import sys
 import time
 
 
@@ -88,7 +89,7 @@ def test_url1(**kwargs):
     assert '$197.38' == m, 'found {}'.format(m) # wrong on purpose
 
 
-@sel_pool()
+@sel_pool(**{'test': 2})
 def test_url2(**kwargs):
     assert kwargs.pop('test') == 2
     driver = kwargs.pop('driver')
