@@ -134,74 +134,69 @@ After the pool of webdrivers has no remaining tests to execute, it creates a JSO
 
 ## Getting Started
 
-This project requires Python 3.6.  
-
 ### Prerequisites
+This project requires Python 3.6.  
 
 I have only tested this on OS X so far, but welcome feedback from anyone working on Windows.  I plan to test on Windows soon.
 
 ### Installing
+#### Clone project
 
-* Create a Python 3.6 virtualenv
-* pip install git+https://github.com/testlabauto/local_selenium_pool.git#egg=local_selenium_pool
-* Create a python file and copy the contents of the file  [test_pool.py](https://github.com/testlabauto/local_selenium_pool/blob/master/test_pool.py) into it
+1) Create a Python 3.6 virtualenv
+2) Clone the project and run pip install -r requirements.txt 
+
+#### pip
+1) Create a Python 3.6 virtualenv
+2) pip install git+https://github.com/testlabauto/local_selenium_pool.git#egg=local_selenium_pool
+3) Create a python file and copy the contents of the file  [test_pool.py](https://github.com/testlabauto/local_selenium_pool/blob/master/test_pool.py) into it
 
 
 ## Running the sample test, test_pool.py
 * Run the script several times, varying the _processes_ parameter to create_pool().  The default, shown below, is 6.
 
 ```
-input_queue, output_queue = create_pool(os.path.splitext(os.path.basename(__file__))[0],
+...
+if __name__ == "__main__":
+
+    start = time.time()
+
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+
+    input_queue, output_queue = create_pool(os.path.splitext(os.path.basename(__file__))[0],
                                             chrome_options,
                                             processes=6)
+
+
+    #auto_fill_queue(sys.modules[__name__], input_queue, 'test_')
+
+    input_queue.put((test_url1))
+    input_queue.put((test_url2, {'test': 2}))
+    input_queue.put((test_url3))
+    input_queue.put((test_url4,))
+    input_queue.put((test_url5))
+    input_queue.put((test_url6))
+    input_queue.put((test_url7))
+    input_queue.put((test_url8))
+    input_queue.put((test_url9))
+
+    report = wait_for_pool_completion(input_queue)
+
+    print(report)
 ```
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+* [selenium](https://pypi.org/project/selenium/) - Python bindings for Selenium
+* [Multiprocessing on Dill](https://pypi.org/project/multiprocessing_on_dill/) - A friendly fork of multiprocessing which uses dill instead of pickle
+* [attr](https://pypi.org/project/attr/) - Simple decorator to set attributes of target function or class in a DRY way.
+* [setuptools](https://pypi.org/project/setuptools/) - Easily download, build, install, upgrade, and uninstall Python packages
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+* **Chris Mead** - *Initial work* - [TestLabAuto](https://github.com/testlabauto)
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the Apache License Version 2.0
 
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
