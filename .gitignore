@@ -6,3 +6,5 @@ geckodriver.log
 .pytest_cache/
 selenium_pool/__pycache__/
 build/
+local_selenium_pool.egg-info/
+dist/

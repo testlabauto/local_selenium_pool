@@ -1,4 +1,0 @@
-selenium
-attr
-setuptools
-multiprocessing_on_dill
