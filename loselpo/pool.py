@@ -1,8 +1,8 @@
 import multiprocessing_on_dill as multiprocessing
 from multiprocessing_on_dill.queues import JoinableQueue
-from seleniumpool.output_parser import TestOutputParser
-from seleniumpool.output_queue import TestRunOutput
-from seleniumpool.selenium_worker import SeleniumWorker
+from loselpo.output_parser import TestOutputParser
+from loselpo.output_queue import TestRunOutput
+from loselpo.selenium_worker import SeleniumWorker
 import time
 
 

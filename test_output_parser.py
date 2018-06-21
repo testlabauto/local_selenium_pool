@@ -1,4 +1,4 @@
-from seleniumpool.output_parser import TestOutputParser
+from loselpo.output_parser import TestOutputParser
 import time
 
 sample_out ='''Process 8538:

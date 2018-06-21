@@ -1,7 +1,7 @@
 import datetime
 import json
-from seleniumpool.output_queue import queue_get_all
-from seleniumpool.test_case import TestCase
+from loselpo.output_queue import queue_get_all
+from loselpo.test_case import TestCase
 import socket
 import time
 
