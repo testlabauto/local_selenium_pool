@@ -1,4 +1,4 @@
-# loselpo
+# loselpo (local_selenium_pool)
 
 A local selenium pool for increased testing performance without requiring multiple hosts.    multiprocessing-on-dill is used to provide a configurable number of headless Chrome selenium webdriver instances on which to simultaneously run selenium tests.   Each instance reuses its _applicationCacheEnabled = False_ webdriver for multiple tests, erasing all cookies between tests.
 
