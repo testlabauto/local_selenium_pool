@@ -1,8 +1,11 @@
 import multiprocessing_on_dill as multiprocessing
 from queue import Empty
 from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import traceback
 import sys
+import time
+
 
 class SeleniumWorker(multiprocessing.Process):
     def __init__(self, input_queue, output_queue, chrome_options):
@@ -17,7 +20,10 @@ class SeleniumWorker(multiprocessing.Process):
 
     def create_driver(self):
         if self.driver is None:
-            self.driver = webdriver.Chrome(chrome_options=self.chrome_options)
+            cap = DesiredCapabilities.CHROME
+            cap.update({'applicationCacheEnabled': False})
+            self.driver = webdriver.Chrome(desired_capabilities=cap,
+                                           chrome_options=self.chrome_options)
 
     def extract_args(self, job):
         arg_count = len(job)
@@ -33,6 +39,7 @@ class SeleniumWorker(multiprocessing.Process):
     def execute_job(self, func, args, kwargs):
         try:
             self.driver.delete_all_cookies()
+
             if len(args) > 0 and len(kwargs) > 0:
                 func(*args,
                      driver=self.driver,

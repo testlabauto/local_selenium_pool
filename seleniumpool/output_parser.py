@@ -1,3 +1,4 @@
+import datetime
 import json
 from seleniumpool.output_queue import queue_get_all
 from seleniumpool.test_case import TestCase
@@ -8,8 +9,6 @@ import time
 class TestOutputParser(object):
 
     def add_error_item_to_testcase(self, stderr_type, tc_key, testcases, lines):
-
-
         assert tc_key in testcases
         testcases[tc_key].failed()
         if stderr_type == 'error':
@@ -18,7 +17,6 @@ class TestOutputParser(object):
             testcases[tc_key].add_assertion(lines)
 
     def process_stderr_component(self, stderr_type, queue, testcases):
-
         items = queue_get_all(queue)
         lines = ''
         func_name = ''
@@ -45,6 +43,7 @@ class TestOutputParser(object):
                 self.add_error_item_to_testcase(stderr_type, tc_key, testcases, lines)
                 func_name = ''
                 lines = ''
+
     def parse(self, start, output_queue, name):
         stdout = queue_get_all(output_queue.getStdOutQueue())
         runs = []
@@ -91,6 +90,7 @@ class TestOutputParser(object):
         end = time.time()
 
         suite = {'tests': tests, 'passed': passed, 'errors': errors, 'failed': failed, 'testcase': [testcases_json],
-                 'host': socket.gethostname(), 'duration': end - start, 'name': name}
+                 'host': socket.gethostname(), 'duration': end - start, 'name': name,
+                 'time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
         return json.dumps(suite, indent=4)

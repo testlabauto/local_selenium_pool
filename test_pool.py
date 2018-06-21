@@ -184,6 +184,7 @@ if __name__ == "__main__":
     chrome_options = Options()
     chrome_options.add_argument("--headless")
 
+
     input_queue, output_queue = create_pool(os.path.splitext(os.path.basename(__file__))[0],
                                             chrome_options,
                                             processes=6)
