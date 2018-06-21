@@ -43,6 +43,8 @@ class TestOutputParser(object):
             if func_name != '' and lines != '':
                 tc_key = '{}-{}'.format(pid, func_name)
                 self.add_error_item_to_testcase(stderr_type, tc_key, testcases, lines)
+                func_name = ''
+                lines = ''
     def parse(self, start, output_queue, name):
         stdout = queue_get_all(output_queue.getStdOutQueue())
         runs = []

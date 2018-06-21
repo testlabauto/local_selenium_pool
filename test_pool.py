@@ -97,7 +97,7 @@ def test_url2(**kwargs):
     assert n == 2
     m = body2(driver)
     print('chiffon {}'.format(m))
-    assert '$95.80' == m, 'found {}'.format(m)
+    assert '$48.90' == m, 'found {}'.format(m)
 
 
 
@@ -109,7 +109,7 @@ def test_url3(**kwargs):
     assert n == 1
     m = body2(driver)
     print('blouse {}'.format(m))
-    assert '$56.00' == m, 'found {}'.format(m)
+    assert '$29.00' == m, 'found {}'.format(m)
 
 
 @sel_pool()
@@ -120,7 +120,7 @@ def test_url4(**kwargs):
     assert n == 5
     m = body2(driver)
     print('printed {}'.format(m))
-    assert '$307.74' == m, 'found {}'.format(m)
+    assert '$154.87' == m, 'found {}'.format(m)
 
 
 @sel_pool()
@@ -131,7 +131,7 @@ def test_url5(**kwargs):
     assert n == 4
     m = body2(driver)
     print('summer {}'.format(m))
-    assert '$186.78' == m, 'found {}'.format(m)
+    assert '$94.39' == m, 'found {}'.format(m)
 
 
 @sel_pool()
@@ -162,7 +162,7 @@ def test_url8(**kwargs):
     m = body2(driver)
     assert n == 2
     print('straps {}'.format(m))
-    assert '$92.76' == m, 'found {}'.format(m)
+    assert '$47.38' == m, 'found {}'.format(m)
 
 
 @sel_pool()
@@ -173,7 +173,7 @@ def test_url9(**kwargs):
     assert n == 1
     m = body2(driver)
     print('evening {}'.format(m))
-    assert '$103.98' == m, 'found {}'.format(m)
+    assert '$52.99' == m, 'found {}'.format(m)
 
 
 if __name__ == "__main__":
@@ -185,18 +185,18 @@ if __name__ == "__main__":
 
     input_queue, output_queue = create_pool(os.path.splitext(os.path.basename(__file__))[0],
                                             chrome_options,
-                                            processes=1)
+                                            processes=6)
 
 
     #auto_fill_queue(sys.modules[__name__], input_queue)
 
-    #input_queue.put((test_url1))
-    #input_queue.put((test_url2, {'test': 2}))
-    #input_queue.put((test_url3))
-    #input_queue.put((test_url4))
-    #input_queue.put((test_url5))
-    #input_queue.put((test_url6))
-    #input_queue.put((test_url7))
+    input_queue.put((test_url1))
+    input_queue.put((test_url2, {'test': 2}))
+    input_queue.put((test_url3))
+    input_queue.put((test_url4))
+    input_queue.put((test_url5))
+    input_queue.put((test_url6))
+    input_queue.put((test_url7))
     input_queue.put((test_url8))
     input_queue.put((test_url9))
 
