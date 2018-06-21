@@ -1,11 +1,12 @@
 import os
-from seleniumpool.pool import create_pool, wait_for_pool_completion
+from seleniumpool.pool import create_pool, wait_for_pool_completion, auto_fill_queue
 from seleniumpool.decorator import sel_pool
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+import sys
 import time
 
 
@@ -188,12 +189,12 @@ if __name__ == "__main__":
                                             processes=6)
 
 
-    #auto_fill_queue(sys.modules[__name__], input_queue)
+    #auto_fill_queue(sys.modules[__name__], input_queue, 'test_')
 
     input_queue.put((test_url1))
     input_queue.put((test_url2, {'test': 2}))
     input_queue.put((test_url3))
-    input_queue.put((test_url4))
+    input_queue.put((test_url4,))
     input_queue.put((test_url5))
     input_queue.put((test_url6))
     input_queue.put((test_url7))

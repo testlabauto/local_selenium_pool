@@ -17,7 +17,5 @@ def sel_pool(*decorator_args, **decorator_kwargs):
             y = {*args, *decorator_args}
             f(*y, **z)
             print('Finished {0}'.format(f.__name__))
-
-            return f(*args, **kwargs)
         return decorated_function
     return wrapper
