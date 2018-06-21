@@ -134,7 +134,7 @@ After the pool of webdrivers has no remaining tests to execute, it creates a JSO
 </p></details>
 
 
-### Use of multiprocessing
+### Use of Multiprocessing on Dill
 
 Multiprocessing is used as instead of multithreading and gevent in order to best isolate each selenium instance in a pool from the other instances.  Multiprocessing on Dill is used for compatibility with attr (avoid pickling errors when using decorators).
 
@@ -191,10 +191,19 @@ if __name__ == "__main__":
     print(report)
 ```
 
-## A portion of the sample test cases
+## Test Cases
+
+There are two requirements for testcases:
+* Use the **kwargs argument (you will access the driver and your own parameters via kwargs)
+* Use the @sel_pool() decorator (parameters optional)
+```python
+@sel_pool(**{'test': 2})
+def test_something(**kwargs):
+    assert kwargs.pop('test') == 2
+```
 
 <details>
-  <summary>Click to expand sample test case code</summary>
+  <summary>Click to see more sample test case code</summary>
   <p>
 <!-- the above p cannot start right at the beginning of the line and is mandatory for everything else to work -->
 
