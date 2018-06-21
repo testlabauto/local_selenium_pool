@@ -12,6 +12,7 @@ setup(
     keywords=["Selenium", "Local", "Concurrent"],
     install_requires=['selenium', 'attr', 'setuptools', 'multiprocessing_on_dill'],
     packages=find_packages(),
+    zip_safe=False,
     classifiers=[
         "Development Status :: 1 - Beta",
         "Topic :: Utilities",
