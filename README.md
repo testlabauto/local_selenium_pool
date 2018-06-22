@@ -1,6 +1,6 @@
 # pyloselpo (Python local Selenium pool)
 
-![Performance Gain](https://github.com/testlabauto/local_selenium_pool/blob/master/images/pyloselpo_perf.png)
+
 
 A local selenium pool for increased testing performance without requiring multiple hosts.    multiprocessing-on-dill is used to provide a configurable number of Chrome webdriver instances on which to simultaneously run selenium tests.   Each instance reuses its _applicationCacheEnabled = False_ webdriver for multiple tests, erasing all cookies between tests.
 
@@ -8,8 +8,7 @@ This project includes a sample test that depends an awesome free resource called
 
 The sample test [test_pool.py](https://github.com/testlabauto/local_selenium_pool/blob/master/test_pool.py), has nine tests in it which can be executed using any number of processes reading from the same queue of tests.  Each test searches the site's products for a different keyword.  It then adds each item found to the cart, one at a time.  Finally, it goes to the checkout page and compares the expected total to the basket total.
 
-
-![Overview](https://github.com/testlabauto/local_selenium_pool/blob/master/images/pyloselpo.png)
+![Performance Gain](https://github.com/testlabauto/local_selenium_pool/blob/master/images/pyloselpo_perf.png)
 
 After the pool of webdrivers has no remaining tests to execute, it creates a JSON report in an XUnit style. 
 
@@ -27,110 +26,85 @@ After the pool of webdrivers has no remaining tests to execute, it creates a JSO
     "testcase": [
         [
             {
+                "function": "test_url1",
+                "process_id": 47455,
+                "stdout": "[2018-06-22 13:03:41] Starting test_url1\n[2018-06-22 13:04:17] dress 7\n[2018-06-22 13:04:17] Finished test_url1",
+                "passed": false,
+                "time": "2018-06-22 13:03:41",
+                "duration": "36.0",
+                "assertion": "[2018-06-22 13:04:17] msg 1\n[2018-06-22 13:04:17] Traceback (most recent call last):\n[2018-06-22 13:04:17]   File \"/Users/cmead/local_selenium_pool/pyloselpo/selenium_worker.py\", line 92, in execute_job\n[2018-06-22 13:04:17]     output_queue=self.stdout_queue)\n[2018-06-22 13:04:17]   File \"/Users/cmead/local_selenium_pool/pyloselpo/decorator.py\", line 26, in decorated_function\n[2018-06-22 13:04:17]     f(**merged)\n[2018-06-22 13:04:17]   File \"/Users/cmead/local_selenium_pool/test_pool.py\", line 85, in test_url1\n[2018-06-22 13:04:17]     assert n == 6, \"msg 1\" # wrong on purpose\n[2018-06-22 13:04:17] AssertionError: msg 1\n"
+            },
+            {
                 "function": "test_url3",
-                "process_id": 36593,
-                "stdout": [
-                    "Starting test_url3",
-                    "blouse 1",
-                    "blouse $29.00",
-                    "Finished test_url3"
-                ],
-                "passed": true
+                "process_id": 47454,
+                "stdout": "[2018-06-22 13:03:41] Starting test_url3\n[2018-06-22 13:03:59] blouse 1\n[2018-06-22 13:04:01] blouse $29.00\n[2018-06-22 13:04:01] Finished test_url3",
+                "passed": true,
+                "time": "2018-06-22 13:03:41",
+                "duration": "20.0"
             },
             {
                 "function": "test_url8",
-                "process_id": 36593,
-                "stdout": [
-                    "Starting test_url8",
-                    "straps 2",
-                    "straps $47.38",
-                    "Finished test_url8"
-                ],
-                "passed": true
-            },
-            {
-                "function": "test_url1",
-                "process_id": 36594,
-                "stdout": [
-                    "Starting test_url1",
-                    "dress 7",
-                    "Finished test_url1"
-                ],
-                "passed": false,
-                "assertion": "msg 1\nTraceback (most recent call last):\n  File \"/Users/cmead/local_selenium_pool/pyloselpo/selenium_worker.py\", line 58, in execute_job\n    output_queue=self.stdout_queue)\n  File \"/Users/cmead/local_selenium_pool/pyloselpo/decorator.py\", line 18, in decorated_function\n    f(*y, **z)\n  File \"/Users/cmead/local_selenium_pool/test_pool.py\", line 84, in test_url1\n    assert n == 6, \"msg 1\" # wrong on purpose\nAssertionError: msg 1\n"
-            },
-            {
-                "function": "test_url4",
-                "process_id": 36596,
-                "stdout": [
-                    "Starting test_url4",
-                    "printed 5",
-                    "printed $154.87",
-                    "Finished test_url4"
-                ],
-                "passed": true
-            },
-            {
-                "function": "test_url5",
-                "process_id": 36597,
-                "stdout": [
-                    "Starting test_url5",
-                    "summer 4",
-                    "summer $94.39",
-                    "Finished test_url5"
-                ],
-                "passed": true
-            },
-            {
-                "function": "test_url2",
-                "process_id": 36595,
-                "stdout": [
-                    "Starting test_url2",
-                    "chiffon 2",
-                    "chiffon $48.90",
-                    "Finished test_url2"
-                ],
-                "passed": true
-            },
-            {
-                "function": "test_url9",
-                "process_id": 36595,
-                "stdout": [
-                    "Starting test_url9",
-                    "evening 1",
-                    "evening $52.99",
-                    "Finished test_url9"
-                ],
-                "passed": true
+                "process_id": 47454,
+                "stdout": "[2018-06-22 13:04:01] Starting test_url8\n[2018-06-22 13:04:17] straps 2\n[2018-06-22 13:04:20] straps $47.38\n[2018-06-22 13:04:20] Finished test_url8",
+                "passed": true,
+                "time": "2018-06-22 13:04:01",
+                "duration": "19.0"
             },
             {
                 "function": "test_url6",
-                "process_id": 36600,
-                "stdout": [
-                    "Starting test_url6",
-                    "popular 0",
-                    "Finished test_url6"
-                ],
-                "passed": true
+                "process_id": 47452,
+                "stdout": "[2018-06-22 13:03:41] Starting test_url6\n[2018-06-22 13:03:56] popular 0\n[2018-06-22 13:03:56] Finished test_url6",
+                "passed": true,
+                "time": "2018-06-22 13:03:41",
+                "duration": "15.0"
             },
             {
                 "function": "test_url7",
-                "process_id": 36600,
-                "stdout": [
-                    "Starting test_url7",
-                    "faded 1",
-                    "faded $18.51",
-                    "Finished test_url7"
-                ],
+                "process_id": 47452,
+                "stdout": "[2018-06-22 13:03:56] Starting test_url7\n[2018-06-22 13:04:09] faded 1\n[2018-06-22 13:04:11] faded $18.51\n[2018-06-22 13:04:11] Finished test_url7",
                 "passed": false,
-                "error": "division by zero\nTraceback (most recent call last):\n  File \"/Users/cmead/local_selenium_pool/pyloselpo/selenium_worker.py\", line 58, in execute_job\n    output_queue=self.stdout_queue)\n  File \"/Users/cmead/local_selenium_pool/pyloselpo/decorator.py\", line 18, in decorated_function\n    f(*y, **z)\n  File \"/Users/cmead/local_selenium_pool/test_pool.py\", line 154, in test_url7\n    print(1/0)\nZeroDivisionError: division by zero\n"
+                "time": "2018-06-22 13:03:56",
+                "duration": "15.0",
+                "error": "[2018-06-22 13:04:11] division by zero\n[2018-06-22 13:04:11] Traceback (most recent call last):\n[2018-06-22 13:04:11]   File \"/Users/cmead/local_selenium_pool/pyloselpo/selenium_worker.py\", line 92, in execute_job\n[2018-06-22 13:04:11]     output_queue=self.stdout_queue)\n[2018-06-22 13:04:11]   File \"/Users/cmead/local_selenium_pool/pyloselpo/decorator.py\", line 26, in decorated_function\n[2018-06-22 13:04:11]     f(**merged)\n[2018-06-22 13:04:11]   File \"/Users/cmead/local_selenium_pool/test_pool.py\", line 154, in test_url7\n[2018-06-22 13:04:11]     print(1/0)\n[2018-06-22 13:04:11] ZeroDivisionError: division by zero\n"
+            },
+            {
+                "function": "test_url2(test=2)",
+                "process_id": 47461,
+                "stdout": "[2018-06-22 13:03:41] Starting test_url2(test=2)\n[2018-06-22 13:04:05] chiffon 2\n[2018-06-22 13:04:07] chiffon $48.90\n[2018-06-22 13:04:07] Finished test_url2",
+                "passed": true,
+                "time": "2018-06-22 13:03:41",
+                "duration": "26.0"
+            },
+            {
+                "function": "test_url9",
+                "process_id": 47461,
+                "stdout": "[2018-06-22 13:04:07] Starting test_url9\n[2018-06-22 13:04:17] evening 1\n[2018-06-22 13:04:20] evening $52.99\n[2018-06-22 13:04:20] Finished test_url9",
+                "passed": true,
+                "time": "2018-06-22 13:04:07",
+                "duration": "13.0"
+            },
+            {
+                "function": "test_url4",
+                "process_id": 47453,
+                "stdout": "[2018-06-22 13:03:42] Starting test_url4\n[2018-06-22 13:04:15] printed 5\n[2018-06-22 13:04:18] printed $154.87\n[2018-06-22 13:04:18] Finished test_url4",
+                "passed": true,
+                "time": "2018-06-22 13:03:42",
+                "duration": "36.0"
+            },
+            {
+                "function": "test_url5",
+                "process_id": 47459,
+                "stdout": "[2018-06-22 13:03:42] Starting test_url5\n[2018-06-22 13:04:13] summer 4\n[2018-06-22 13:04:15] summer $94.39\n[2018-06-22 13:04:15] Finished test_url5",
+                "passed": true,
+                "time": "2018-06-22 13:03:42",
+                "duration": "33.0"
             }
         ]
     ],
-    "host": "SomebodysMacmini.somewhere.com",
-    "duration": 45.529669761657715,
+    "host": "ChristophersMacmini.longmontcolorado.gov",
+    "duration": 41.14260005950928,
     "name": "test_pool",
-    "time": "2018-06-21 15:09:54"
+    "time": "2018-06-22 13:04:20"
 }
 ```
 </p></details>
@@ -139,6 +113,12 @@ After the pool of webdrivers has no remaining tests to execute, it creates a JSO
 ### Use of Multiprocessing on Dill
 
 Multiprocessing is used instead of multithreading or gevent in order to best isolate each selenium instance in a pool from the other instances.  Multiprocessing on Dill is used for compatibility with attr (to avoid pickling errors when using decorators).
+
+## Input and Output Queues
+
+The Selenium executor processes share the same input and outputs.  On the input side, they get test cases from a JoinableQueue and exit when that queue is empty.  On the output side, they print() output and log exceptions and assertions to queues to avoid sharing resources.  When the input queue is empty and all the processes exit their main loop, the data from the queues is processed into a readable report.
+
+![Overview](https://github.com/testlabauto/local_selenium_pool/blob/master/images/pyloselpo.png)
 
 ## Getting Started
 
