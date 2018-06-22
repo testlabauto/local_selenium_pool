@@ -190,17 +190,17 @@ if __name__ == "__main__":
                                             processes=6)
 
 
-    #auto_fill_queue(sys.modules[__name__], input_queue, 'test_')
+    auto_fill_queue(sys.modules[__name__], input_queue, 'test_')
 
-    input_queue.put((test_url1))
-    input_queue.put((test_url2, {'test': 2}))
-    input_queue.put((test_url3))
-    input_queue.put((test_url4,))
-    input_queue.put((test_url5))
-    input_queue.put((test_url6))
-    input_queue.put((test_url7))
-    input_queue.put((test_url8))
-    input_queue.put((test_url9))
+    #input_queue.put((test_url1))
+    #input_queue.put((test_url2, {'test': 2}))
+    #input_queue.put((test_url3))
+    #input_queue.put((test_url4,))
+    #input_queue.put((test_url5))
+    #input_queue.put((test_url6))
+    #input_queue.put((test_url7))
+    #input_queue.put((test_url8))
+    #input_queue.put((test_url9))
 
     report = wait_for_pool_completion(input_queue)
 

@@ -5,8 +5,10 @@ import sys
 import datetime
 
 
-
 class TestRunOutput():
+    """
+    This class is just a holder for the three output queues
+    """
     def __init__(self):
         self.stdout = OutputQueue()
         self.error = OutputQueue()
@@ -25,19 +27,20 @@ class TestRunOutput():
         return self.stdout, self.error, self.assertion
 
 
-class OutputEntry():
-    def __init__(self, pid, timestamp, msg):
-        self.pid = pid
-        self.timestamp = timestamp
-        self.msg = msg
-
-
 class OutputQueue(queues.Queue):
+    """
+    A subclass of Queue that adds stdout and stderr to queues based on stdout/sterr being redirected
+    """
     def __init__(self, *args, **kwargs):
         ctx = multiprocessing.get_context()
         super(OutputQueue, self).__init__(*args, **kwargs, ctx=ctx)
 
     def write(self, msg):
+        """
+        Writes OutputEntry objects to the queues
+        :param msg: Data to write to queue (and fork to stdout of the main process
+        :return:
+        """
         if msg == '\n':
             return
         process_ident = multiprocessing.current_process().ident
@@ -49,7 +52,22 @@ class OutputQueue(queues.Queue):
         sys.__stdout__.flush()
 
 
+class OutputEntry():
+    """
+    Data content written to output queues
+    """
+    def __init__(self, pid, timestamp, msg):
+        self.pid = pid
+        self.timestamp = timestamp
+        self.msg = msg
+
+
 def queue_get_all(q):
+    """
+    Used by report builder to extract all items from a
+    :param q: queue to get all items from
+    :return: hash of merged data from the queue by pid
+    """
     items = {}
     maxItemsToRetreive = 10000
     for numOfItemsRetrieved in range(0, maxItemsToRetreive):

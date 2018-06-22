@@ -73,6 +73,13 @@ class TestOutputParser(object):
         return testcases
 
     def process_stderr_component(self, stderr_type, queue, testcases):
+        """
+        This method is called to add exceptions and assertions to the base report
+        :param stderr_type: flag used to determine which attribute on test case to add to
+        :param queue: error or assertion queue
+        :param testcases: base report
+        :return:
+        """
         items = queue_get_all(queue)
         lines = ''
         func_name = ''
@@ -105,6 +112,14 @@ class TestOutputParser(object):
 
     @staticmethod
     def add_error_item_to_testcase(stderr_type, tc_key, testcases, lines):
+        """
+        Update a test case in the base report with an assertion or error
+        :param stderr_type: error or assertion
+        :param tc_key: key into base report dict
+        :param testcases: base report
+        :param lines: captured stacktrace to add
+        :return:
+        """
         assert tc_key in testcases
         if stderr_type == 'error':
             testcases[tc_key].add_error(lines)
@@ -113,6 +128,13 @@ class TestOutputParser(object):
 
     @staticmethod
     def create_json_report(testcases, start, name):
+        """
+        Creates a JSON representation of the report
+        :param testcases: base report with errors and assertions added
+        :param start: timestamp of run start
+        :param name: report name
+        :return: JSON test run report
+        """
         testcases_json = []
         passed = 0
         failed = 0

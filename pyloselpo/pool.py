@@ -48,6 +48,13 @@ def wait_for_pool_completion(input_queue):
 
 
 def auto_fill_queue(module, input_queue, prefix='test_'):
+    """
+    Scans the specified module for methods beginning with prefix and puts them into the input_queue
+    :param module: module whose test methods are to be added to the queue
+    :param input_queue: queue to add tests to
+    :param prefix: string prefix to identify tests
+    :return:
+    """
     test_func_names = []
     for x in dir(module):
         if x.startswith(prefix):

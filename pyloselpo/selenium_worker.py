@@ -7,6 +7,9 @@ import sys
 
 
 class SeleniumWorker(multiprocessing.Process):
+    """
+    This subclass of Process excecutes tests and hold on to driver that it reuses
+    """
     def __init__(self, input_queue, output_queue, chrome_options):
         super(SeleniumWorker, self).__init__()
         self.input_queue = input_queue
@@ -18,6 +21,10 @@ class SeleniumWorker(multiprocessing.Process):
         self.chrome_options = chrome_options
 
     def create_driver(self):
+        """
+        Create the driver that this worker will use with the options passed in
+        :return:
+        """
         if self.driver is None:
             cap = DesiredCapabilities.CHROME
             cap.update({'applicationCacheEnabled': False})
@@ -25,34 +32,62 @@ class SeleniumWorker(multiprocessing.Process):
                                            chrome_options=self.chrome_options)
 
     def extract_args(self, job):
+        """
+        Helper function to extract the arguments from a job popped from the input_queue
+        :param job: test method and params, if any
+        :return: kwargs
+        """
         arg_count = len(job)
         if isinstance(job[arg_count - 1], dict):
             kwargs = job[arg_count - 1]
-            args = job[1:arg_count - 1]
         else:
-            args = job[1:]
             kwargs = {}
 
-        return args, kwargs
+        return kwargs
 
-    def execute_job(self, func, args, kwargs):
+    def run(self):
+        """
+        Called when process is started.  Begins by creating a driver for this worker.  The time it takes to
+        create the driver allows for follow on addition of tests to the queue.  Loops as long as the queue is
+        not empty, running tests
+        :return:
+        """
+
+        self.create_driver()
+
+        while True:
+            try:
+                job = self.input_queue.get_nowait()
+            except Empty:
+                self.driver.quit()
+                return
+            if not callable(job):
+                func = job[0]
+                kwargs = self.extract_args(job)
+            else:
+                func = job
+                kwargs = {}
+            self.execute_job(func, kwargs)
+
+    def execute_job(self, func, kwargs):
+        """
+        Called by run() to execute a single test.  Deletes all cookies between tests.
+        Adds the driver and output_queue to the test case via kwargs (merges kwargs if kwargs supplied by test case)
+        When an exception or assertion is hit, stdout/stderr redirected to appropriate queue
+        and then stdout/stderr restored.  Logging of "Finished" is not optional as it is used by the results parser
+        Mraks tests as done in the queue when complete.
+        :param func: name of function to run
+        :param kwargs: kwargs passed from the user
+        :return:
+        """
         try:
             self.driver.delete_all_cookies()
 
-            if len(args) > 0 and len(kwargs) > 0:
-                func(*args,
-                     driver=self.driver,
-                     output_queue=self.stdout_queue,
-                     **kwargs)
-            elif len(args) > 0 and len(kwargs) == 0:
-                func(*args,
-                     driver=self.driver,
-                     output_queue=self.stdout_queue)
-            elif len(args) == 0 and len(kwargs) > 0:
+            if len(kwargs) > 0:
                 func(driver=self.driver,
                      output_queue=self.stdout_queue,
                      **kwargs)
-            elif len(args) == 0 and len(kwargs) == 0:
+            elif len(kwargs) == 0:
                 func(driver=self.driver,
                      output_queue=self.stdout_queue)
         except AssertionError as e:
@@ -78,21 +113,3 @@ class SeleniumWorker(multiprocessing.Process):
         finally:
             self.input_queue.task_done()
 
-    def run(self):
-
-        self.create_driver()
-
-        while True:
-            try:
-                job = self.input_queue.get_nowait()
-            except Empty:
-                self.driver.quit()
-                return
-            if not callable(job):
-                func = job[0]
-                args, kwargs = self.extract_args(job)
-            else:
-                func = job
-                args = []
-                kwargs = {}
-            self.execute_job(func, args, kwargs)
