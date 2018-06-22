@@ -1,4 +1,4 @@
-# pyloselpo (Python local Selenium pool)
+# local_selenium_pool (Python)
 
 
 
@@ -32,7 +32,7 @@ After the pool of webdrivers has no remaining tests to execute, it creates a JSO
                 "passed": false,
                 "time": "2018-06-22 13:03:41",
                 "duration": "36.0",
-                "assertion": "[2018-06-22 13:04:17] msg 1\n[2018-06-22 13:04:17] Traceback (most recent call last):\n[2018-06-22 13:04:17]   File \"/Users/cmead/local_selenium_pool/pyloselpo/selenium_worker.py\", line 92, in execute_job\n[2018-06-22 13:04:17]     output_queue=self.stdout_queue)\n[2018-06-22 13:04:17]   File \"/Users/cmead/local_selenium_pool/pyloselpo/decorator.py\", line 26, in decorated_function\n[2018-06-22 13:04:17]     f(**merged)\n[2018-06-22 13:04:17]   File \"/Users/cmead/local_selenium_pool/test_pool.py\", line 85, in test_url1\n[2018-06-22 13:04:17]     assert n == 6, \"msg 1\" # wrong on purpose\n[2018-06-22 13:04:17] AssertionError: msg 1\n"
+                "assertion": local_selenium_pool
             },
             {
                 "function": "test_url3",
@@ -65,7 +65,7 @@ After the pool of webdrivers has no remaining tests to execute, it creates a JSO
                 "passed": false,
                 "time": "2018-06-22 13:03:56",
                 "duration": "15.0",
-                "error": "[2018-06-22 13:04:11] division by zero\n[2018-06-22 13:04:11] Traceback (most recent call last):\n[2018-06-22 13:04:11]   File \"/Users/cmead/local_selenium_pool/pyloselpo/selenium_worker.py\", line 92, in execute_job\n[2018-06-22 13:04:11]     output_queue=self.stdout_queue)\n[2018-06-22 13:04:11]   File \"/Users/cmead/local_selenium_pool/pyloselpo/decorator.py\", line 26, in decorated_function\n[2018-06-22 13:04:11]     f(**merged)\n[2018-06-22 13:04:11]   File \"/Users/cmead/local_selenium_pool/test_pool.py\", line 154, in test_url7\n[2018-06-22 13:04:11]     print(1/0)\n[2018-06-22 13:04:11] ZeroDivisionError: division by zero\n"
+                "error": local_selenium_pool
             },
             {
                 "function": "test_url2(test=2)",

@@ -1,7 +1,7 @@
 import datetime
 import json
-from pyloselpo.output_queue import queue_get_all
-from pyloselpo.test_case import TestCase
+from local_selenium_pool.output_queue import queue_get_all
+from local_selenium_pool.test_case import TestCase
 import socket
 import time
 

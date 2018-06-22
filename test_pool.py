@@ -1,6 +1,6 @@
 import os
-from pyloselpo.pool import create_pool, wait_for_pool_completion, auto_fill_queue
-from pyloselpo.decorator import sel_pool
+from local_selenium_pool.pool import create_pool, wait_for_pool_completion, auto_fill_queue
+from local_selenium_pool.decorator import sel_pool
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
