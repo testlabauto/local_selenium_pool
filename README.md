@@ -285,10 +285,9 @@ def test_url2(**kwargs):
 
 ## Debugging
 
-When using input_queue.put(), you will need to only add the test case you are debugging to the queue 
+When using input_queue.put(), to run a specific test that you need to debug, you simply need to only add only that test case to the queue.
 
-When using auto_fill_queue(), the prefix parmeter to auto_fill_queue can be changed to match a method whose name you also change.  This way all other tests won't be picked up and added to the queue.
-
+When using auto_fill_queue(), to run a specific test that you need to debug, use the prefix parameter to auto_fill_queue to match a method whose name you've altered.  
 ## Built With
 
 * [selenium](https://pypi.org/project/selenium/) - Python bindings for Selenium
@@ -299,7 +298,8 @@ When using auto_fill_queue(), the prefix parmeter to auto_fill_queue can be chan
 
 ## Authors
 
-* **Chris Mead** - *Initial work* - [TestLabAuto](https://github.com/testlabauto)
+* **Chris Mead** - *Initial work* - [TestLabAuto](https://github.com/testlabauto) - [Test Lab Automation](https://testlabauto.com/)
+
 
 ## License
 
