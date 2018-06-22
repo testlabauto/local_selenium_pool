@@ -110,7 +110,7 @@ After the pool of webdrivers has no remaining tests to execute, it creates a JSO
 </p></details>
 
 
-### Use of Multiprocessing on Dill
+## Multiprocessing on Dill
 
 Multiprocessing is used instead of multithreading or gevent in order to best isolate each selenium instance in a pool from the other instances.  Multiprocessing on Dill is used for compatibility with attr (to avoid pickling errors when using decorators).
 
@@ -119,6 +119,17 @@ Multiprocessing is used instead of multithreading or gevent in order to best iso
 The Selenium executor processes share the same input and outputs.  On the input side, they get test cases from a JoinableQueue and exit when that queue is empty.  On the output side, they print() output and log exceptions and assertions to queues to avoid sharing resources.  When the input queue is empty and all the processes exit their main loop, the data from the queues is processed into a readable report.
 
 ![Overview](https://github.com/testlabauto/local_selenium_pool/blob/master/images/pyloselpo.png)
+
+## Decorators
+Decorators are required on test cases.  The _@sel_pool()_ decorator allows for stdout/stderr redirection and for the appropriate web driver to be provided to the test.  Additionally, test cases can be data driven using the same paramter (**kwargs).
+
+When adding tests to the queue with auto_fill_queue(), the decorator can be parameterized like this:  
+
+    @sel_pool(**{'test': 2, 'test2': 5.6})
+
+When adding tests to the queue with a put() to the JoinableQueue, parameters can be provided like this: 
+
+    input_queue.put((test_url2, {'test': 2}))
 
 ## Getting Started
 
