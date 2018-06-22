@@ -4,7 +4,6 @@ from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import traceback
 import sys
-import time
 
 
 class SeleniumWorker(multiprocessing.Process):

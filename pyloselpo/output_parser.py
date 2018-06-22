@@ -7,44 +7,35 @@ import time
 
 
 class TestOutputParser(object):
-
-    def add_error_item_to_testcase(self, stderr_type, tc_key, testcases, lines):
-        assert tc_key in testcases
-        testcases[tc_key].failed()
-        if stderr_type == 'error':
-            testcases[tc_key].add_error(lines)
-        else:
-            testcases[tc_key].add_assertion(lines)
-
-    def process_stderr_component(self, stderr_type, queue, testcases):
-        items = queue_get_all(queue)
-        lines = ''
-        func_name = ''
-        for key, value in items.items():
-            pid = key
-            for line in value.split('\n'):
-                if line == '':
-                    continue
-                # get function name from line starting with marker [
-                if line.startswith('['):
-                    if func_name != '' and lines != '':
-                        tc_key = '{}-{}'.format(pid, func_name)
-                        self.add_error_item_to_testcase(stderr_type, tc_key, testcases, lines)
-                        lines = ''
-                    parts = line.split(']')
-                    no_timestamp = ']'.join(parts[1:])
-                    parts2 = no_timestamp.split(']')
-                    func_name = parts2[0][1:]
-                else:
-                    lines += line + '\n'
-
-            if func_name != '' and lines != '':
-                tc_key = '{}-{}'.format(pid, func_name)
-                self.add_error_item_to_testcase(stderr_type, tc_key, testcases, lines)
-                func_name = ''
-                lines = ''
+    """
+    This class creates a JSON report using the data stored in the three output queues during a tets run
+    """
 
     def parse(self, start, output_queue, name):
+        """
+        Parse creates the report and returns it as JSON
+        :param start: Timestamp of when the test was started
+        :param output_queue: object that holds references to all three output queues
+        :param name: name of the output report (test module name is recommended)
+        :return: json formatted report in XUnit style
+        """
+        testcases = self.build_base_report(output_queue)
+
+        self.process_stderr_component('error', output_queue.getErrorQueue(), testcases)
+        self.process_stderr_component('assertion', output_queue.getAssertionQueue(), testcases)
+
+        suite = self.create_json_report(testcases, start, name)
+
+        return json.dumps(suite, indent=4)
+
+    @staticmethod
+    def build_base_report(output_queue):
+        """
+        Each test case run will have stdout, but not each one will have errors and assertions.
+        The base report consists of test cases an d their stdout
+        :param output_queue:
+        :return: list of testcases
+        """
         stdout = queue_get_all(output_queue.getStdOutQueue())
         runs = []
         lines = []
@@ -66,12 +57,53 @@ class TestOutputParser(object):
 
         testcases = {}
         for run in runs:
-            tc = TestCase(function=run[1], process_id=run[0], stdout='\n'.join([x[1] for x in run[2]]))
+            standard_out = '\n'.join(['[{}] {}'.format(x[0], x[1]) for x in run[2]])
+            tc = TestCase(function=run[1], process_id=run[0], stdout=standard_out)
             testcases['{}-{}'.format(run[0], run[1])] = tc
 
-        self.process_stderr_component('error', output_queue.getErrorQueue(), testcases)
-        self.process_stderr_component('assertion', output_queue.getAssertionQueue(), testcases)
+        return testcases
 
+    def process_stderr_component(self, stderr_type, queue, testcases):
+        items = queue_get_all(queue)
+        lines = ''
+        func_name = ''
+        current_ts = ''
+        for key, value in items.items():
+            pid = key
+            for line in value.split('\n'):
+                if line == '':
+                    continue
+                # get function name from line starting with marker [
+                if line.startswith('['):
+                    if func_name != '' and lines != '':
+                        tc_key = '{}-{}'.format(pid, func_name)
+                        self.add_error_item_to_testcase(stderr_type, tc_key, testcases, lines)
+                        lines = ''
+                    parts = line.split(']')
+                    ts = parts[0][1:]
+                    current_ts = ts
+                    no_timestamp = ']'.join(parts[1:])
+                    parts2 = no_timestamp.split(']')
+                    func_name = parts2[0][1:]
+                else:
+                    lines += '[{}] {}\n'.format(current_ts, line)
+
+            if func_name != '' and lines != '':
+                tc_key = '{}-{}'.format(pid, func_name)
+                self.add_error_item_to_testcase(stderr_type, tc_key, testcases, lines)
+                func_name = ''
+                lines = ''
+
+    @staticmethod
+    def add_error_item_to_testcase(stderr_type, tc_key, testcases, lines):
+        assert tc_key in testcases
+        if stderr_type == 'error':
+            testcases[tc_key].add_error(lines)
+        else:
+            testcases[tc_key].add_assertion(lines)
+
+    @staticmethod
+    def create_json_report(testcases, start, name):
         testcases_json = []
         passed = 0
         failed = 0
@@ -93,4 +125,7 @@ class TestOutputParser(object):
                  'host': socket.gethostname(), 'duration': end - start, 'name': name,
                  'time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
-        return json.dumps(suite, indent=4)
+        return suite
+
+
+

@@ -11,6 +11,15 @@ output_queue = None
 name = None
 
 def create_pool(test_name, chrome_options, processes=multiprocessing.cpu_count()):
+    """
+    This method creates the test pool and returns.  Tests need to be added to the input queue quickly after calling this
+    or else the pool will exit due to an empty input queue
+    :param test_name: The test name will be used as the name field in the output JSON report
+    :param chrome_options: These are the options sent to the browser.  Using these options you can, among other things,
+    control whether or not the browsers run headless
+    :param processes: This is the count of Selenium webdriver processes the pool should have in it
+    :return: The input and output queues
+    """
     global start, output_queue, name
     start = time.time()
     name = test_name
@@ -27,6 +36,11 @@ def create_pool(test_name, chrome_options, processes=multiprocessing.cpu_count()
 
 
 def wait_for_pool_completion(input_queue):
+    """
+    This method will block until all tests have been executed, then return the test results report
+    :param input_queue: The queue to join
+    :return: A parsed test report
+    """
     global start, output_queue, name
     input_queue.join()
 

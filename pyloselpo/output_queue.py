@@ -2,7 +2,7 @@ import multiprocessing_on_dill as multiprocessing
 import multiprocessing_on_dill.queues as queues
 from queue import Empty
 import sys
-import time
+import datetime
 
 
 
@@ -41,7 +41,7 @@ class OutputQueue(queues.Queue):
         if msg == '\n':
             return
         process_ident = multiprocessing.current_process().ident
-        entry = OutputEntry(process_ident, time.time(), msg.strip('\n'))
+        entry = OutputEntry(process_ident, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), msg.strip('\n'))
         self.put(entry)
         sys.__stdout__.write('Process {0}: {1}\n'.format(process_ident, msg))
 
