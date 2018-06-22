@@ -58,7 +58,16 @@ class TestOutputParser(object):
         testcases = {}
         for run in runs:
             standard_out = '\n'.join(['[{}] {}'.format(x[0], x[1]) for x in run[2]])
-            tc = TestCase(function=run[1], process_id=run[0], stdout=standard_out)
+            first_ts = run[2][0][0]
+            last_ts = run[2][-1][0]
+            fs = "%Y-%m-%d %H:%M:%S"
+            first_ts_time = time.strptime(first_ts, fs)
+            last_ts_time = time.strptime(last_ts, fs)
+
+            duration = str(time.mktime(last_ts_time) - time.mktime(first_ts_time))
+
+            tc = TestCase(function=run[1], process_id=run[0], stdout=standard_out, time=first_ts,
+                          duration=duration)
             testcases['{}-{}'.format(run[0], run[1])] = tc
 
         return testcases
