@@ -121,7 +121,7 @@ The Selenium executor processes share the same input and outputs.  On the input 
 ![Overview](https://github.com/testlabauto/local_selenium_pool/blob/master/images/pyloselpo.png)
 
 ## Decorators
-Decorators are required on test cases.  The _@sel_pool()_ decorator allows for stdout/stderr redirection and for the appropriate web driver to be provided to the test.  Additionally, test cases can be data driven using the same paramter (**kwargs).
+Decorators are required on test cases.  The _@sel_pool()_ decorator allows for stdout/stderr redirection and for the appropriate web driver to be provided to the test.  Additionally, test cases can be data driven using the decorator's parameter, **kwargs.
 
 When adding tests to the queue with auto_fill_queue(), the decorator can be parameterized like this:  
 
@@ -143,11 +143,13 @@ I have only tested this on OS X so far, but welcome feedback from anyone working
 
 1) Create a Python 3.6 virtualenv
 2) Clone the project and run pip install -r requirements.txt 
+3) Download chromedriver and put it in your PATH
 
 #### pip
 1) Create a Python 3.6 virtualenv
 2) pip install git+https://github.com/testlabauto/local_selenium_pool.git#egg=local_selenium_pool
 3) Create a python file and copy the contents of the file  [test_pool.py](https://github.com/testlabauto/local_selenium_pool/blob/master/test_pool.py) into it
+3) Download chromedriver and put it in your PATH
 
 
 ## Running the sample test, test_pool.py
