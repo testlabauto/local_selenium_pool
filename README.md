@@ -6,9 +6,10 @@ This project includes a sample test that depends an awesome free resource called
 
 The sample test [test_pool.py](https://github.com/testlabauto/local_selenium_pool/blob/master/test_pool.py), has nine tests in it which can be executed using any number of processes reading from the same queue of tests.  Each test searches the site's products for a different keyword.  It then adds each item found to the cart, one at a time.  Finally, it goes to the checkout page and compares the expected total to the basket total.
 
-After the pool of webdrivers has no remaining tests to execute, it creates a JSON report in an XUnit style. 
 
 ![Overview](https://github.com/testlabauto/local_selenium_pool/blob/master/images/pyloselpo.png)
+
+After the pool of webdrivers has no remaining tests to execute, it creates a JSON report in an XUnit style. 
 
 <details>
   <summary>Click to expand sample output</summary>

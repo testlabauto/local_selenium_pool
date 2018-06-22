@@ -48,10 +48,8 @@ class TestOutputParser(object):
                 if msg is not '':
                     lines.append((ts, msg))
                 if msg.startswith('Starting '):
-                    func_name = msg.split()[1]
+                    func_name = parts[1].split()[1]
                 if msg.startswith('Finished'):
-                    end_func_name = msg.split()[1]
-                    assert func_name == end_func_name
                     runs.append((pid, func_name, lines))
                     lines = []
 

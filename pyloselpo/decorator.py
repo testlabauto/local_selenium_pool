@@ -15,9 +15,15 @@ def sel_pool(**decorator_kwargs):
         def decorated_function(**kwargs):
             out = kwargs.pop('output_queue')
             sys.stdout = out
-            print('Starting {0}'.format(f.__name__))
-            z = {**kwargs, **decorator_kwargs}
-            f(**z)
+            merged = {**kwargs, **decorator_kwargs}
+            copy_of_merged = {**kwargs, **decorator_kwargs}
+            del copy_of_merged['driver']
+            if len(copy_of_merged) > 0:
+                print('Starting {0}({1})'.format(f.__name__,
+                      ', '.join('%s=%r' % x for x in copy_of_merged.items())))
+            else:
+                print('Starting {0}'.format(f.__name__))
+            f(**merged)
             print('Finished {0}'.format(f.__name__))
         return decorated_function
     return wrapper
