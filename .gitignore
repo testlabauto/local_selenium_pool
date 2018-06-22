@@ -9,3 +9,4 @@ build/
 local_selenium_pool.egg-info/
 dist/
 .DS_Store
+.pypirc

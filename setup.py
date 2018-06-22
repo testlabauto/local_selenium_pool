@@ -21,8 +21,8 @@ setup(
     packages=find_packages(),
     zip_safe=False,
     classifiers=[
-        "Development Status :: 1 - Beta",
-        "Topic :: Utilities",
+        "Development Status :: 3 - Alpha",
+        "Topic :: Software Development :: Testing",
         "Intended Audience :: Developers",
         "Intended Audience :: Information Technology",
         "License :: OSI Approved :: Apache Software License",
