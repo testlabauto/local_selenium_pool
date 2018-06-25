@@ -147,13 +147,13 @@ I have only tested this on OS X so far, but welcome feedback from anyone working
 
 #### pip
 1) Create a Python 3.6 virtualenv
-2) pip install git+https://github.com/testlabauto/local_selenium_pool.git#egg=local_selenium_pool
+2) pip install local_selenium_pool
 3) Create a python file and copy the contents of the file  [test_pool.py](https://github.com/testlabauto/local_selenium_pool/blob/master/test_pool.py) into it
 3) Download chromedriver and put it in your PATH
 
 
 ## Running the sample test, test_pool.py
-* Run the script several times, varying the _processes_ parameter to create_pool().  The default, shown below, is 6.
+* Run the script (test_pool.py) several times, varying the _processes_ parameter to create_pool().  The default, shown below, is 6.
 * Comment out the input_queue.put() lines and uncomment the auto_fill_queue() line.  These are the two alternative ways to add tests to the pool
 
 ```
